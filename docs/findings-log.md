@@ -74,6 +74,21 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0016 | 2026-10-24 | Confirmed — GenD owns 100% of generate/design (FLORA is analysis-only)
+
+- **Observation (Stan, w/ FLORA scope screenshot):** the analysis agent is named FLORA
+  and is analysis-ONLY by construction (565d09): allergen/food-safety, function
+  prediction, localization, variant-effect, structure prediction of existing proteins,
+  search/clustering. Its explicit NON-scope: no new proteins/molecules (no
+  design/generation), no farming assistant, no chatbot.
+- **Mandate:** therefore EVERY generate/design/optimize need in the ecosystem is GenD's
+  (ours). Recorded a full-coverage map in `Default Project/docs/10-agent-handshake.md`
+  with no gaps: new molecules → Molek; new sequences → Seqgen/Pinal; binders → RFD4;
+  variant DESIGN → Seqgen/RFD4 (variant-EFFECT prediction stays FLORA's); optimization →
+  farm-knob; words→build → NLP intent/Pinal; the loop → /v1.
+- **Boundary nuance logged:** structure prediction is shared TOOLING on opposite sides —
+  FLORA analyzes existing proteins; we only use it to VALIDATE our designs (§8 ladder).
+
 ## F-0015 | 2026-10-24 | Honest correction — run #7 was NOT crash-safe against a ceiling-cut
 
 - **Observation (Stan flagged checkpoint safety):** audit found the earlier "checkpoint-
