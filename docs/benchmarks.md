@@ -134,3 +134,35 @@ predicted pLDDT > 90 for AlphaFold eval.
 Rule for all four rows (G7): **any number in a model card, paper, or report produced by us
 carries (a) its seed, (b) its config hash (G10), (c) with/without-correction labels for
 MoFlow, (d) dataset/eval provenance from `data/manifests/`.**
+
+---
+
+## 6. PLANNED (later): PPI binder benchmark against their protocol — Stan's pick
+
+Source view (verbatim, Stan 2026-10-23): `https://rfd4-proteina.org/leaderboard.html?dataset=ppi&criterion=ppi&condition=paper&metric=clustered&targetMetric=clustered&af3=true&log=true&sort=rate&target=`
+
+Underlying data is fully reproducible (`https://rfd4-proteina.org/benchmarks/data.json`,
+checked 2026-10-23): snapshot `2026-10-21`, source repo `kierandidi/RFD4-Proteina-paper` @
+revision `18b7fc2cdbb14e71…`, **3,073 rows / 19 models**, row schema
+`run_id, model, protocol, dataset, target, attempts, scored, passes, clusters,
+generation_gpu_s, af3_gpu_s, timing_basis, source_sha256…` — i.e. per-target attempts /
+passes / clusters / GPU-time incl. AF3, sha256-pinned.
+
+Plan (runs AFTER serving layer ships; dependencies noted):
+1. **Targets**: take the `dataset=ppi` rows as our task list (fixed target set — no
+   cherry-picking; record the row hashes).
+2. **Budget**: match their `attempts` convention (200/target counted, failures count).
+3. **Refold validator**: theirs is AlphaFold3. Our substitute (ESMFold → Chai, local,
+   honest-labeled) is NOT AF3 — reported separately as ours; if AF3 access ever appears,
+   rerun before any public claim.
+4. **Metric**: clustered pass rate (distinct passing folds / attempts), same counting
+   semantics; report ALSO raw pass rate.
+5. **Comparison**: their `rfd4_proteina_*` / `bindcraft*` / `rfdiffusion*` rows are
+   REFERENCE COLUMNS; our loop's own cached numbers go under our header with config hash
+   (G10) — never blended.
+6. **Front-end**: the plan's real point — our design loop (RFD4-Proteina as
+   `design.backbone` tool + ESM-2 scoring) has to clear a PPI sub-set BEFORE we claim
+   any binder-design capability to users/partners.
+
+OPEN: whether we run this on Kaggle GPU quota vs local GPU — decided at serving time.
+
