@@ -8,6 +8,6 @@
   "enable_gpu": true,
   "enable_internet": true,
   "competition_sources": [],
-  "dataset_sources": [],
+  "dataset_sources": ["basu369victor/zinc250k"],
   "kernel_sources": []
 }

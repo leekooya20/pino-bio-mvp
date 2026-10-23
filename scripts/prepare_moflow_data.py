@@ -18,6 +18,7 @@ import csv
 import gzip
 import hashlib
 import json
+import os
 import shutil
 import sys
 import time
@@ -30,6 +31,11 @@ EXTERNAL = ROOT / "data" / "external"
 MANIFEST = ROOT / "data" / "manifests" / "moses-zinc250k.jsonl"
 
 SOURCE_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/250k_rndm_zinc_drugs_clean_3.csv.gz"
+# M-MOFLOW-7 fallback source: DeepChem S3 began returning HTTP 403 for anonymous
+# GETs (2026-10-23, Kaggle run #3). Verified mirror: Kaggle dataset
+# basu369victor/zinc250k — exact same filename, row count 249,455 and columns
+# {smiles, logP, qed, SAS} as the reference file (G7 check, no rounding).
+MIRROR_NOTE = "fallback: DeepChem S3 returned 403 anonymously; verified via Kaggle dataset basu369victor/zinc250k (same filename/rows/columns)"
 REQUIRED_COLUMNS = {"smiles", "logP", "qed", "SAS"}
 EXPECTED_ROWS = 249_455  # reference README generate.py output for zinc250k — verified count
 
@@ -45,18 +51,31 @@ def sha256_file(p: Path) -> str:
 def main() -> int:
     EXTERNAL.mkdir(parents=True, exist_ok=True)
     TP_DATA.mkdir(parents=True, exist_ok=True)
+    mirror_csv = Path(os.environ.get(
+        "ZINC250K_CSV",
+        "/kaggle/input/zinc250k/250k_rndm_zinc_drugs_clean_3.csv",
+    ))
+    local_arg = Path(sys.argv[1]) if len(sys.argv) > 1 else None
 
     gz = EXTERNAL / "250k_rndm_zinc_drugs_clean_3.csv.gz"
     csv_path = EXTERNAL / "zinc250k.csv"
+    used_mirror = ""
 
     if not csv_path.exists():
-        if not gz.exists():
+        candidates = [c for c in (local_arg, mirror_csv) if c and Path(c).exists()]
+        if candidates:
+            src = Path(candidates[0])
+            print(f"copying verified mirror csv: {src}")
+            shutil.copyfile(src, csv_path)
+            used_mirror = MIRROR_NOTE
+        elif not gz.exists():
             print(f"downloading {SOURCE_URL} ... (~35 MB)")
             urllib.request.urlretrieve(SOURCE_URL, gz)
             print(f"sha256(gz) = {sha256_file(gz)}")
-        print("decompressing ...")
-        with gzip.open(gz, "rb") as fi, csv_path.open("wb") as fo:
-            shutil.copyfileobj(fi, fo)
+        if not csv_path.exists():
+            print("decompressing ...")
+            with gzip.open(gz, "rb") as fi, csv_path.open("wb") as fo:
+                shutil.copyfileobj(fi, fo)
     else:
         print("csv already present — verifying only")
 
@@ -84,7 +103,7 @@ def main() -> int:
         "rows": rows,
         "retrieved_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "verified_columns": list(header),
-        "notes": "canonical file consumed by calvin-zcx/moflow data_preprocess.py; mirrors configs/licenses.yaml entry moses-zinc250k",
+        "notes": "canonical file consumed by calvin-zcx/moflow data_preprocess.py; mirrors configs/licenses.yaml entry moses-zinc250k" + (";" if not used_mirror else "; " + used_mirror),
     }
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     existing = []
