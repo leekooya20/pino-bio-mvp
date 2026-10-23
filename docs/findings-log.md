@@ -74,7 +74,22 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0007 | 2026-10-23 | Kaggle serves NO log/output while a worker is RUNNING
+
+- **Observation:** `kaggle kernels output` returns exit 0 with an EMPTY directory
+  while the kernel is still running (`KernelWorkerStatus.RUNNING`) — the log of the
+  live run is not fetchable from the API until the run terminates.
+- **Evidence:** three sequential output attempts against `leexze/
+  moflow30m-zinc250k-r1` v7 during RUNNING all returned zero files; status polling
+  itself works normally.
+- **Impact:** training observation duty (G13) restructures to: (a) during run —
+  status transitions only, no loss curve; (b) the FIRST action on COMPLETE/ERROR is
+  `kaggle kernels output`, then a full read of the epoch log for anomalies. The
+  background monitor is therefore not a degraded substitute — it is the only
+  live signal Kaggle offers.
+
 ---
 
-*Next entries: any anomaly from Kaggle run #7 monitoring, ProtGPT2 data prep
-surprises, serving-layer quirks. Reminder duty is in `CLAUDE.md` (G13).*
+*Next entries: any anomaly from the run #7 epoch log (fetched at termination),
+ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
+`CLAUDE.md` (G13).*
