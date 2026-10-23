@@ -74,6 +74,19 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0020 | 2026-10-24 | New hard rule G14 — research-before-execute (Stan)
+
+- **Rule (Stan):** if an action/approach needs verifying, conduct research FIRST to
+  confirm it's correct before executing. Verify, don't assume. Registered as G14 in
+  CLAUDE.md; extends G11 (recipe-read) to every significant decision.
+- **Already in practice (this is codifying it):** live license checks before any data use
+  (ChEBI/UniProt/MegaMolBART/DiffDock/Evo2), reading paper Methods before locking configs
+  (ProtGPT2, MoFlow), reading RFD4/Pinal docs before wrappers, checking the PH landscape
+  before claims. G14 makes it binding, not just habit.
+- **Impact:** before executing anything uncertain (a new model, a benchmark design, a
+  scale-up, a claim), do the research pass first; if it shows the plan is wrong, correct
+  it and log why. No blind execution.
+
 ## F-0019 | 2026-10-24 | Adaptation ladder recorded — CPT/SFT/LoRA for the big served ones (Stan)
 
 - **Decision (Stan):** for served models too big to build from scratch, the ownership
