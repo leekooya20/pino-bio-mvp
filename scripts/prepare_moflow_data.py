@@ -48,6 +48,28 @@ def sha256_file(p: Path) -> str:
     return h.hexdigest()
 
 
+def write_canonical_with_index(src: Path, dest: Path) -> int:
+    """M-MOFLOW-8: reproduce the ORIGINAL zinc250k.csv shape the reference consumes.
+
+    Reference code (G11, third_party/moflow/data/data_preprocess.py:61) does
+    `pd.read_csv('zinc250k.csv', index_col=0)` and then df['smiles'] — the
+    canonical DeepChem file therefore carries a leading unnamed index column
+    (pandas `to_csv(index=True)` output, header 'Unnamed: 0'). The verified
+    Kaggle mirror saved index=False, so we re-emit the canonical shape with
+    index 0..N-1 (streaming, no memory blowup) before the reference reads it.
+    """
+    with src.open("r", encoding="utf-8", newline="") as fi, dest.open("w", encoding="utf-8", newline="") as fo:
+        reader = csv.reader(fi)
+        writer = csv.writer(fo)
+        header = next(reader)
+        writer.writerow(["Unnamed: 0"] + header)
+        n = 0
+        for row in reader:
+            writer.writerow([n] + row)
+            n += 1
+    return n
+
+
 def main() -> int:
     EXTERNAL.mkdir(parents=True, exist_ok=True)
     TP_DATA.mkdir(parents=True, exist_ok=True)
@@ -115,8 +137,11 @@ def main() -> int:
     print(f"ok  manifest -> {MANIFEST}")
 
     dest = TP_DATA / "zinc250k.csv"
-    shutil.copyfile(csv_path, dest)
-    print(f"ok  placed -> {dest} (reference expects it there)")
+    n = write_canonical_with_index(csv_path, dest)
+    if rows != n:
+        print(f"FAIL canonical rewrite lost rows: {n} != {rows}", file=sys.stderr)
+        return 1
+    print(f"ok  placed -> {dest} (canonical shape w/ 'Unnamed: 0' index col, M-MOFLOW-8)")
     return 0
 
 
