@@ -7,13 +7,19 @@ and in `docs/benchmarks.md` (§6/§7/§8), mapped to **what exists today**, what
 Reproducibility trio at bottom: seed `20261023` · config `a1288cc8…` · pinned
 `moflow@3611c6372602` / `moses@dd7ed6ab38e2` — every row below inherits them (G3/G10).
 
+**Naming registry (Stan-locked 2026-10-23):** our trained weights = **Molek-30M**
+(this run) / **Molek-PH-30M** (future M-MOFLOW-3 agri-head variant). Methods and
+papers always say "MoFlow"; weights always say Molek; the lineage line
+"MoFlow replica (Zang & Wang, KDD 2020), MIT, own from-scratch training" travels
+with every public mention of the name.
+
 ---
 
 ## A. The six "It does" capabilities (GenD page)
 
 | # | Capability | Status (2026-10-23) | Blocks / next concrete artifact | Hard-rule gate |
 |---|---|---|---|---|
-| A1 | **Generate novel molecular graphs** (MoFlow replica @30M) | 🟡 **in training** — pipeline fully green through preflight (29,049,444 params), epochs running on Kaggle r1 | first `eval_summary.json` w/ corrected+uncorrected (M-MOFLOW-4) | G3/G7 (frozen harness = reference generate.py + MOSES metrics), G10 ✅ |
+| A1 | **Generate novel molecular graphs** (**Molek-30M** — our from-scratch MoFlow replica @30M; naming locked by Stan 2026-10-23; lineage: Zang & Wang KDD 2020, MIT) | 🟡 **in training** — pipeline fully green through preflight (29,049,444 params), epochs running on Kaggle r1 | first `eval_summary.json` w/ corrected+uncorrected (M-MOFLOW-4) | G3/G7 (frozen harness = reference generate.py + MOSES metrics), G10 ✅ |
 | A2 | **Generate novel protein sequences** (ProtGPT2-small replica) | 🟠 next — tokenizer + UR50 manifest to build; 3 paper OPEN items gate the config (`docs/reading-list.md`) | `configs/seqgen-ur50.yaml` locked ONLY after Ferruz-2022 Methods read | G11 (no config before Methods read), G1 (UniRef50 entry exists ✅) |
 | A3 | **Design binders/backbones** (RFD4-Proteina served) | 🟠 planned Phase-3 — license ✅ BSD-3 (GitHub API 2026-10-23), serving constraint recorded (py3.12 container ≠ Kaggle 3.13) | pinned container + 1-condition integration acceptance in `docs/06-serving-release.md` terms | G4 (capability tier gated by §6 PPI bench BEFORE public claims), G1/BSD-3 ✅ |
 | A4 | **Optimize toward target properties** (M-MOFLOW-3 PH-agri head) | 🟠 after A1 baseline — head is config-registered; needs a trained base latents | conditioned `optimize-property` run vs baseline property deltas | G3/G7 (reported as ours w/ config hash), M-MOFLOW-3 ledger row ✅ |

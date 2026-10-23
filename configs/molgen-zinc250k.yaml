@@ -9,6 +9,11 @@
 
 run:
   name: moflow30m-zinc250k-r1
+  artifact_name: molek-30m       # OUR model name for the trained weights (2026-10-23, Stan-locked).
+                                 # Naming registry: base = Molek-30M (this run); agri-head variant
+                                 # (M-MOFLOW-3, pending) = Molek-PH-30M. Lineage line used everywhere:
+                                 # "MoFlow replica (Zang & Wang, KDD 2020), MIT, own from-scratch training."
+                                 # Methods/keys always say MoFlow; WEIGHTS always say Molek.
   seed: 20261023            # G10
   notes: "first from-scratch replication run; expect reconstruction==100% on fixture"
 
