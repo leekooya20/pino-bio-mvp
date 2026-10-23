@@ -90,12 +90,12 @@ datasets:
     basis: "UniProt consortium license permits open use; training data for ProtGPT2 recipe replication; re-verify snapshot license at download time"
   - id: uniprot-crop-proteomes
     domain: bio
-    license: "CC BY 4.0"
+    license: "CC BY 4.0 — CONDITIONAL pending live verification (PinoAI standard 636b63: a licence you cannot read is not a verified licence)"
     retrieved_at: "2026-10-23"
-    commercial_ok: true
+    commercial_ok: "TBD — confirm CC BY 4.0 LIVE at primary source (UniProt REST API licence field / rendered terms) at collection, per PinoAI task-A-rice-func precedent; then flip to true"
     derivative_ok: true
     contains_pii: false
-    basis: "UniProt proteomes allow redistribution under CC BY 4.0; crop-enriched arm (rice/Oryza sativa first, then maize/coconut/mango/soy) shared with second agent's ESM-2 arm — attribution required on redistribution; verify per-release proteome availability"
+    basis: "UniProt proteomes claimed CC BY 4.0; NOT yet verified live by us (JS-render limit precedent). Crop-enriched arm (rice/Oryza sativa first) shared conceptually with PinoAI phfm ESM-2 arm; attribution required on redistribution"
 
 teachers:
   - id: deepseek-v4-pro
