@@ -20,14 +20,24 @@ verbatim-sourced; this file tracks the *reading*, not the numbers).
   benchmark values per dataset) = optional later pass; our eval uses the README numbers,
   which are the operational ground truth for `generate.py`.
 
-### ProtGPT2 — Ferruz et al., Nat Commun 13, 4348 (2022) — CARD-READ ✅ / PAPER ❌ OPEN
+### ProtGPT2 — Ferruz et al., Nat Commun 13, 4348 (2022) — CARD-READ ✅ / PAPER-METHODS-READ ✅ (2026-10-23)
 - HF card (Apache-2.0) read: 738M / 36L, UniRef50 (≈42M seqs), 50 epochs, block 512,
   batch 1024 / 65536 tokens, LR 1e-3, custom BPE, ppl→top-1 pLDDT>90 selection rule.
-- **OPEN items for Phase-2 (paper must answer before `configs/seqgen-ur50.yaml` locks):**
-  1. Reference training ppl curve (order of magnitude for our ≤100M comparisons).
-  2. Whether lr 1e-3 was cosine/plateau/cyclic (card silent; paper Methods has it).
-  3. Exact corpus versioning they trained on (UR50 2021-04 per our Katala docs 08)
-     + any dedup details affecting our subsample stratification (P-PTGPT2-2).
+- **Paper Methods read 2026-10-23 (nature.com/articles/s41467-022-32007-7), OPEN items closed:**
+  1. **ppl curve → CLOSED (with a finding):** the paper publishes **NO numeric training
+     perplexity** (loss is standard CLM cross-entropy, Eq. 2; no ppl value/curve in text
+     or that we could grep). ⇒ we CANNOT benchmark our ≤100M ppl against theirs; our ppl
+     is reported stand-alone vs our own held-out eval only (G7). See F-0008.
+  2. **lr schedule → CLOSED:** **Adam β1=0.9 β2=0.999, LR 1e-3, CONSTANT** — the paper
+     names no warmup/cosine/plateau/cyclic schedule. The card's bare "1e-3" = flat.
+     See F-0009. (Decision for P-PTGPT2: constant-lr faithful baseline; a short warmup is
+     an *allowed documented deviation* if small-scale training is unstable — ledgered.)
+  3. **corpus + dedup → CLOSED:** UniRef50 **version 2021_04**, **49,874,565 seqs** total;
+     **10% random holdout** → **44.88M train / 4.99M eval**. Dedup = UniRef50's own 50%-
+     identity clustering (no extra dedup step). Block size **512** (main model; a 1024
+     variant was also built). BPE tokenizer. Trained 128×A100, 4 days, batch 8/device
+     (1024 total), 65,536 tokens/batch, DeepSpeed.
+- **Status: sufficient to LOCK `configs/seqgen-ur50.yaml`** (done 2026-10-23, P-PTGPT2-1..5).
 
 ### RFD4-Proteina — 2026 preprint (UW IPD × NVIDIA) — SITE-READ ✅ / DEEP-DOCS ❌ pending serving
 - Site read (home, resources, leaderboard) 2026-10-23; benchmark protocol + data.json

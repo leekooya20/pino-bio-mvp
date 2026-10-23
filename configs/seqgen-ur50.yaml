@@ -1,0 +1,86 @@
+# configs/seqgen-ur50.yaml
+# ProtGPT2-small from-scratch, MVP Phase-2 (this repo, PinoBio MVP-4).
+# Our model name for the trained weights: SEQGEN (base = Seqgen-small; crop arm = Seqgen-rice).
+# Lineage line (always travels with the name): "ProtGPT2 replica (Ferruz, Schmidt & Hocker,
+#   Nat Commun 13:4348, 2022), Apache-2.0, own from-scratch training."
+#
+# G11 SATISFIED: paper Methods read 2026-10-23 before this file existed
+#   (nature.com/articles/s41467-022-32007-7). See docs/reading-list.md (3 OPEN items CLOSED).
+# Keys marked  # [REF]   = verbatim reference value from the paper Methods.
+# Keys marked  # [P-###] = OUR documented modification (P-PTGPT2-1..5, mods ledger), never silent.
+
+run:
+  name: seqgen-small-ur50-r1
+  artifact_name: seqgen-small        # weights name; crop-arm variant = seqgen-rice (P-5)
+  seed: 20261023                      # G10
+  notes: "first from-scratch ProtGPT2 replica at <=100M; faithful recipe + documented scale-down"
+
+data:
+  name: uniref50
+  version: "2021_04"                  # [REF] paper trained on UniRef50 v2021_04 (49,874,565 seqs)
+  manifest: data/manifests/uniref50-subsample.jsonl   # G1: license entry 'uniref50' (UniProt CC BY 4.0, verify live at download)
+  holdout_fraction: 0.10              # [REF] 10% random held-out for eval (paper: 44.88M train / 4.99M eval)
+  dedup:
+    strategy: "inherent-uniref50-50pct-identity"   # [REF] no extra dedup step; UniRef50's own 50%-id clustering IS the dedup
+    extra_dedup: false               # [REF] paper added none; we add none at base (G11 fidelity)
+  subsample:                          # [P-PTGPT2-2] compute-fit curriculum; full corpus later
+    target_sequences: 8_000_000      # 5-10M stratified subsample for first runs (we pick 8M)
+    stratify_by: cluster_size        # [P-PTGPT2-2] stratify by UniRef50 cluster size (preserve rare clusters)
+    note: "full-corpus run gated on compute; subsample is a deliberate curriculum stage, reported as such"
+
+tokenizer:
+  algorithm: bpe                      # [REF] BPE (Gage) over the 25-letter UniRef50 alphabet
+  train_on: subsample                 # [P-PTGPT2-2] BPE learned on OUR subsample (recorded; reference learned on full)
+  note: "vocab size fixed after BPE training on the subsample; recorded in run_meta + tokenizer.json sha256 (G10)"
+
+model:                               # decoder-only GPT-2 family; reference = 36L / d1280 / 738M
+  arch: gpt2-decoder
+  n_layer: 10                         # [P-PTGPT2-1] scale-down (ref 36) -> <=100M ceiling
+  n_embd: 640                         # [P-PTGPT2-1] scale-down (ref 1280)
+  n_head: 10                          # [P-PTGPT2-1] 640/10 = 64 per head
+  block_size: 512                     # [REF] main reference model uses block size 512 (1024 variant existed)
+  param_budget_max: 100_000_000       # [P-PTGPT2-1] HARD assert at startup: fail if > 100M (mirrors MoFlow M-1 preflight)
+
+optim:
+  optimizer: adam                     # [REF] Adam
+  betas: [0.9, 0.999]                 # [REF] beta1=0.9, beta2=0.999
+  learning_rate: 0.001                # [REF] 1e-3
+  lr_schedule: constant               # [REF] paper names NO schedule -> constant (see reading-list item 2, F-0009)
+  warmup_steps: 0                     # [REF] none in paper; a small warmup is an ALLOWED documented deviation if unstable (P-1 note)
+  tokens_per_batch: 65536             # [REF] reference effective tokens/batch (128 GPU x 512); we reach it via grad-accum on T4
+  per_device_batch: 8                 # [REF] reference per-device batch 8
+  grad_accum: auto                    # [P-PTGPT2-1] grad-accum to reach 65536 tokens/batch on 1-2 T4 (same effective math)
+  amp: true                           # [P-PTGPT2-1] fp16 autocast on T4 (same budget rationale as MoFlow M-2)
+  epochs: 50                          # [REF] card states 50 epochs; subsample makes an epoch far cheaper (reported honestly)
+
+eval:
+  loss: clm_cross_entropy             # [REF] Eq. 2 negative log-likelihood (standard CLM)
+  perplexity:
+    report: stand_alone               # [REF-GAP] paper publishes NO numeric training ppl (F-0008)
+    compare_to_reference: false       # G7: we CANNOT benchmark ppl vs theirs (they published none) -> ours is own-holdout only
+  sampling:                           # [REF] inference params the paper selected
+    top_k: 950                        # [REF] k=950 (best natural-propensity match; k>800 needed)
+    repetition_penalty: 1.2           # [REF] 1.2
+    window_context_tokens: 250        # [REF] 250-token window for the generation study
+  selection_gate:                     # [P-PTGPT2-3] our OWN gate on top of their ppl rule
+    keep_reference_ppl_rule: true     # [REF] ppl -> top-candidate rule retained
+    add_esm2_embedding_novelty: true  # [P-PTGPT2-3] ESM-2 embedding-similarity novelty score (served model, no weights change)
+    add_blast_vs_uniref_novelty: true # [P-PTGPT2-3] BLAST-vs-UniRef novelty check before acceptance (anti-memorization)
+    honesty: "novelty metrics reported with their thresholds; ours stay ours, never blended with reference (G7)"
+
+finetune_hook:                        # [P-PTGPT2-4] accept the reference fine-tune protocol from day one
+  protocol: run_clm.py                # [REF] HF run_clm.py
+  finetune_lr: 0.000001               # [REF] fine-tune LR 1e-6
+  eos_token: "<|endoftext|>"          # [REF] sequences delimited by <|endoftext|>
+
+crop_arm:                             # [P-PTGPT2-5] crop-enriched arm, aligned w/ the ESM-2 crop arm on phfm side
+  enabled: false                      # gated: turns on only after base Seqgen-small eval + manifest/license exist (G1)
+  order: ["oryza_sativa", "zea_mays", "cocos_nucifera", "mangifera_indica"]   # rice-first, then maize/coconut/mango
+  artifact_name: seqgen-rice          # crop-arm weights name
+  note: "manifest + UniProt proteome license verified live at download before this flips true (G1); ledger = P-PTGPT2-5"
+
+provenance:                           # G10
+  config_hash: "TBD-at-first-run"
+  reference_paper: "10.1038/s41467-022-32007-7"
+  reference_card: "huggingface.co/nferruz/ProtGPT2 (Apache-2.0)"
+  methods_read: "2026-10-23"

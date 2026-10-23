@@ -74,6 +74,30 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0009 | 2026-10-23 | ProtGPT2's learning rate is CONSTANT — no schedule (card ambiguity resolved)
+
+- **Observation:** paper Methods state Adam (β1=0.9, β2=0.999), **LR 1e-3** with **no
+  warmup/cosine/plateau/cyclic schedule named**. The HF card's bare "1e-3" had left
+  this open; the paper confirms flat/constant.
+- **Evidence:** nature.com/articles/s41467-022-32007-7 Methods ("optimized using Adam
+  ... learning rate of 1e-03"); no scheduler mentioned anywhere.
+- **Impact:** `configs/seqgen-ur50.yaml` locks `lr_schedule: constant, warmup_steps: 0`
+  as the faithful baseline. A small warmup is pre-authorized as a *documented* P-1
+  deviation ONLY if small-scale training proves unstable — never silent.
+
+## F-0008 | 2026-10-23 | ProtGPT2 publishes NO numeric training perplexity
+
+- **Observation:** the paper reports loss as standard CLM cross-entropy (Eq. 2) but
+  gives **no training perplexity value or curve** anywhere in main text/Methods. The
+  card doesn't either.
+- **Evidence:** full-text grep for perplexity/ppl across the fetched article = zero
+  numeric ppl; only qualitative sampling-quality discussion (k=950, rep-penalty 1.2).
+- **Impact:** G7 consequence — we **cannot** benchmark our ≤100M training ppl against
+  theirs (there is nothing to compare to). Our perplexity is reported stand-alone
+  against our own held-out eval only; `configs/seqgen-ur50.yaml` sets
+  `perplexity.compare_to_reference: false`. Prevents a false "matches ProtGPT2 ppl"
+  claim before it could ever be made.
+
 ## F-0007 | 2026-10-23 | Kaggle serves NO log/output while a worker is RUNNING
 
 - **Observation:** `kaggle kernels output` returns exit 0 with an EMPTY directory
