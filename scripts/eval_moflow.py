@@ -69,7 +69,10 @@ def main() -> int:
 
     run_dir = ROOT / args.run_dir
     snap_dir = run_dir / "snapshots"
-    model_dir = snap_dir.parent
+    # generate.py joins model_dir with BOTH the snapshot and the hyperparams filename
+    # (generate.py:445-446), so model_dir must be the dir that holds the snapshot AND
+    # moflow-params.json — i.e. snap_dir itself.
+    model_dir = snap_dir
     eval_dir = run_dir / "eval"
     eval_dir.mkdir(parents=True, exist_ok=True)
 
