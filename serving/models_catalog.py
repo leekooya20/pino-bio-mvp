@@ -75,6 +75,19 @@ MODELS: list[dict] = [
         "served": True,
         "ours": False,
     },
+    {
+        "id": "pinal",
+        "name": "Pinal (served)",
+        "family": "Text→protein design",
+        "areas": ["design", "generate"],
+        "status": "available",
+        "version": "16B · served (T2struc + SaProt-T)",
+        "tagline": "Design candidate proteins from a natural-language description of function.",
+        "license": "Apache-2.0",
+        "source": "Dai et al., Nature 2026 (westlake-repl, served — not ours)",
+        "served": True,
+        "ours": False,
+    },
 ]
 
 _BY_ID = {m["id"]: m for m in MODELS}

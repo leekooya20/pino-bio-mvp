@@ -63,6 +63,20 @@ verbatim-sourced; this file tracks the *reading*, not the numbers).
 
 ## Our served models
 
+### Pinal — Dai et al., Nature 2026 (s41586-026-11205-z) — REPO+CARD READ ✅ (2026-10-23, scope addition)
+- **Scope addition authorized by Stan 2026-10-23** (text→protein design fits our tier).
+- Repo read (westlake-repl/Denovo-Pinal, Apache-2.0) + HF card + Nature/bioRxiv abstract:
+  two-stage — **T2struct** (natural language → 3Di structure tokens) then **SaProt-T**
+  (structure+text → sequence). 16B total; checkpoints SaProt-T 760M / T2struc-1.2B /
+  T2struc-15.5B. 1.2B+760M run on 1 GPU (~1 min/10 designs, A40); 15B needs ≥40GB.
+  Built on SaProt (MIT) + ProTrek (MIT). Synthetic data: 1.7B protein-text pairs via
+  ProTrek retrieval + LLM annotation.
+- **SERVE-first (G9):** 16B is not from-scratch on our compute; wrapper
+  `serving/runtimes/pinal_runtime.py` written (honest pending until `PINAL_ENDPOINT`).
+- **Pending (optional deep pass):** Nature full Methods (T2struct scaling curve, the
+  SaProt-T text-projection matrix detail) when/if we self-host — cite-only; their
+  wet-lab GFP/enzyme results are theirs (G7), never claimed as ours.
+
 ### ESM-2 (facebookresearch) — Lin et al., Science 379 (2023) — REGISTERED ❌ deep-read pending
 - License/citation verified earlier (MIT; `esm2_t6_8M_UR50D` … `esm2_t33_650M_UR50D`).
 - **Pending (Phase-2/3 novelty gates + scoring)**: which checkpoint(s) we pin for

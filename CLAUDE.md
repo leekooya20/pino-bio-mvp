@@ -16,6 +16,8 @@ binding inside **pino-bio-mvp**:
 - **G10** Every run writes `artifacts/<run>/run_meta.json` (seed, config hash, data version pin, third_party SHA).
 - **G11** Recipe fidelity: read real recipe + full code + process + benchmarks BEFORE replicating. Deltas are documented modification IDs (M-*/P-*), applied as patches — never silent, never a blind copy.
 - **G13 (findings, Stan 2026-10-23):** every finding / observation / unexpected behavior — rare, anomalous, undocumented, or "strange but it worked" — MUST be recorded in `docs/findings-log.md` the moment it is noticed. Date, context, evidence pointer, impact. No silent discoveries; retroactive seeding is allowed only at registration time. Applies during runs, evals, fetches, docs work — everything. **Especially binding on model training runs:** the run log is fetched the instant a run terminates and every epoch milestone, loss anomaly, spike, NaN, timing oddity, or silent restart it shows gets its own findings entry.
-- Scope: MVP-4 only (moflow, protgpt2-small, rfd4 serve, esm2 serve) + SciACA /v1 compat per Katala specs §10–11. Do not invent new domains here.
+- Scope: MVP-4 only (moflow, protgpt2-small, rfd4 serve, esm2 serve)
+  **+ (scope addition, Stan-authorized 2026-10-23) Pinal served (text→protein, Apache-2.0,
+  SERVE-first — never from-scratch; G9 honored by serving).** + SciACA /v1 compat per Katala specs §10–11. Do not invent new domains here.
 
 If a task would violate a rule → STOP, write `BLOCKED.md`.

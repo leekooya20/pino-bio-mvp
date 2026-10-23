@@ -74,6 +74,21 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0011 | 2026-10-23 | Scope addition — Pinal (text→protein), SERVE-first by necessity
+
+- **Observation:** Pinal (Dai et al., Nature 2026; westlake-repl/Denovo-Pinal,
+  Apache-2.0) designs proteins from natural-language descriptions via a two-stage
+  pipeline (T2struct: text→3Di tokens; SaProt-T: structure+text→sequence). 16B total.
+- **Decision (Stan-authorized):** added to our generative scope. But it is **served,
+  not replicated** — 16B / 1.7B training pairs is far beyond from-scratch on our
+  compute, so G9 is honored by serving (self-host 1.2B+760M on 1 GPU, or online
+  server), never by claiming a from-scratch build.
+- **Evidence:** repo+HF card read; license Apache-2.0 verified live; wrapper
+  `serving/runtimes/pinal_runtime.py` + `/v1` task `design-from-text`.
+- **Impact:** new capability A7 (natural-language design) — the "programmable"
+  frontier of our tier. Honesty guard: Pinal's wet-lab GFP/enzyme validation is the
+  authors' result, cited not claimed; our stack adds no efficacy claim of its own.
+
 ## F-0010 | 2026-10-23 | RFD4-Proteina serves via NVIDIA NIM HTTP — resolves the py3.12/3.13 conflict
 
 - **Observation:** RFD4-Proteina requires Linux x86_64 + Python 3.12 + CUDA GPU

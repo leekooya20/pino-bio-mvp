@@ -371,6 +371,20 @@ bio_tools:
     hosted_by_us: true
     notes: "PLANNED, not yet downloaded (G1: manifest + sha256 written at fetch-verify time). Attribution ships with any release (C5 analog, phfm precedent). Molek steering consumes descriptor STATISTICS of positives, not bulk redistribution."
 
+  - id: pinal
+    function: "text->protein programmable design (natural-language -> 3Di structure -> sequence); SERVE-first (16B)"
+    role: generation_core
+    phase: "P3 (scope addition, Stan-authorized 2026-10-23)"
+    license: "Apache-2.0 (verified live 2026-10-23: github.com/westlake-repl/Denovo-Pinal LICENSE)"
+    date_checked: "2026-10-23"
+    source: "github.com/westlake-repl/Denovo-Pinal · weights HF westlake-repl/Pinal (SaProt-T 760M, T2struc-1.2B, T2struc-15.5B)"
+    sizes: "16B framework (T2struc-1.2B + SaProt-T 760M runnable on 1 GPU; T2struc-15B needs >=40GB)"
+    deps: "built on SaProt (MIT) + ProTrek (MIT) — same westlake-repl group, open licenses"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "SERVE via self-host (1.2B+SaProt-T) or online server; 16B not from-scratch on our compute (G9: served, not replicated). Paper: Dai/You/Zhu et al., Nature 2026 (s41586-026-11205-z); bioRxiv 2024.08.01.606258. Wet-lab validated (GFP + enzymes) BY THE AUTHORS — their result, cited not claimed (G7)."
+
 rejected:
   - id: closed-api-models
     reason: "G2 — no closed-API distillation (ToS + detection + legal)"

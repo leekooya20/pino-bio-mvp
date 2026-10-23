@@ -106,12 +106,29 @@ def esm_fold(inputs: dict) -> dict:
     return client.fold(endpoint=endpoint, inputs=inputs)
 
 
+def text_design(inputs: dict) -> dict:
+    """text.design (task: design-from-text) -> Pinal (served, Apache-2.0)."""
+    endpoint = os.environ.get("PINAL_ENDPOINT", "")
+    desc = inputs.get("description", inputs.get("prompt", ""))
+    if not endpoint:
+        return _pending(
+            "Pinal text->protein endpoint not configured (set PINAL_ENDPOINT; 16B served, "
+            "not ours). No proteins fabricated (G7). Pinal is served Apache-2.0 - its "
+            "wet-lab results are the authors', cited not claimed.",
+            model="pinal", served=True, description=desc,
+        )
+    from importlib import import_module
+    client = import_module("serving.runtimes.pinal_runtime")
+    return client.design(endpoint=endpoint, inputs=inputs)
+
+
 # SciACA task â†’ tool (spec Â§10.2). Unknown task â‡’ validation error (Â§11).
 TASK_TOOL = {
     "generate-molecule": mol_generate,
     "explore-chemistry": mol_generate,
     "design-sequence": seq_generate,
     "design-binder": design_backbone,
+    "design-from-text": text_design,
     "optimize-property": esm_score,
     "fold-protein": esm_fold,
     "fold-complex": esm_fold,
