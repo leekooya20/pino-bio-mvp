@@ -74,6 +74,18 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0013 | 2026-10-23 | The workbench UI belongs in SciACA, not our backend repo (Stan)
+
+- **Observation/decision (Stan):** the §7 trajectory workbench is a LAB-UI feature, so
+  the product page lives in SciACA (consuming our `/v1`), not as a standalone HTML in
+  pino-bio-mvp. Built it there: `src/pages/WorkbenchPage.tsx` + `/workbench` route + rail
+  nav, matching SciACA's own components (Card/Field/Select/Checkbox/Badge/Button) and
+  api client; merged PR #2 → `cff7705`, full build green.
+- **Impact:** clean boundary — pino-bio-mvp owns the backend (trajectory in job results),
+  SciACA owns the UI. `site/workbench.html` demoted to a dependency-free backend-reference
+  demo. Pattern for future UI features: build them in SciACA against `/v1`, keep only
+  backend + optional reference demos here.
+
 ## F-0012 | 2026-10-23 | Scope addition — OWNED NLP intent layer (text → our generators)
 
 - **Observation/decision (Stan-authorized):** add natural language to OUR models, not
