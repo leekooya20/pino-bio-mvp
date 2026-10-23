@@ -358,6 +358,19 @@ bio_tools:
     hosted_by_us: true
     notes: "MVP generate (molecule). From-scratch 30M on Kaggle T4x2; completely own checkpoint + recipe. Trains on moses-zinc250k"
 
+  - id: chebi-agchem
+    function: "positive reference set for M-MOFLOW-3 farm-knob steering (agrochemical role molecules w/ structures)"
+    role: agri
+    phase: "P1"
+    license: "CC BY 4.0 (verified live 2026-10-23: github.com/ebi-chebi/ChEBI LICENSE + ebi.ac.uk/chebi training pages)"
+    date_checked: "2026-10-23"
+    source: "ftp.ebi.ac.uk/pub/databases/chebi (SDF all-2-3-star + ontology OWL/OBO); role tree: agrochemical CHEBI:33286 > herbicide CHEBI:24527 / insecticide CHEBI:24852 / fungicide CHEBI:24127"
+    sizes: "hundreds of structured agrochemical entries (2-3 star)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "PLANNED, not yet downloaded (G1: manifest + sha256 written at fetch-verify time). Attribution ships with any release (C5 analog, phfm precedent). Molek steering consumes descriptor STATISTICS of positives, not bulk redistribution."
+
 rejected:
   - id: closed-api-models
     reason: "G2 — no closed-API distillation (ToS + detection + legal)"
