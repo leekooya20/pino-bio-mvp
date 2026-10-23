@@ -1,0 +1,52 @@
+# configs/nlp-intent.yaml
+# Owned NLP intent layer (capability A8) — natural language -> OUR generators.
+# Spec: docs/nlp-intent-spec.md. Stan-authorized scope addition 2026-10-23.
+#
+# We OWN only the projection heads (small, Kaggle-trainable); base text encoders are
+# frozen + open-licensed. Keys marked [N-NLP-#] are our documented owned modules.
+
+run:
+  name: nlp-intent-r1
+  seed: 20261023            # G10
+  notes: "owned NL->conditioning adapter; frozen open encoder + trained projection"
+
+encoders:                   # frozen, open (G1 live-verified 2026-10-23)
+  molecule_arm:
+    model: sentence-transformers/all-MiniLM-L6-v2
+    license: Apache-2.0
+    dim: 384
+    frozen: true
+  protein_arm:
+    model: westlake-repl/ProTrek_650M   # [N-NLP-3] protein-text aligned encoder
+    license: MIT
+    frozen: true
+    fallback: sentence-transformers/all-MiniLM-L6-v2   # if ProTrek unavailable
+
+heads:
+  intent_mol:               # [N-NLP-1] text -> molecular descriptor-target vector
+    out: descriptor_target  # same panel as the farm-knob (docs/farmknob-spec.md)
+    train_pairs: chebi_text_descriptor   # ChEBI definition <-> RDKit descriptors (CC BY 4.0)
+    steers: molek_farmknob  # M-MOFLOW-3 region steering
+    hidden: [256, 128]
+    param_budget_max: 5_000_000          # tiny adapter; asserts at startup
+  intent_seq:               # [N-NLP-2] text -> Seqgen control embedding
+    out: seq_control_embedding
+    projection: trainable_matrix_W       # Pinal p(s|c,t) pattern: e_t -> PLM space (read, G11)
+    train_pairs: uniprot_annotation_sequence   # G1 live-verify at download
+    steers: seqgen_small
+    param_budget_max: 10_000_000
+
+ood_gate:                   # [N-NLP-4] honest out-of-distribution flag
+  enabled: true
+  method: nearest_training_cluster_distance
+  note: "prompts far from any training-pair cluster are flagged, not silently answered (G7)"
+
+eval:                       # sufficiency gate (docs/nlp-intent-spec.md §enough)
+  recovery: per_dimension   # predicted vs true target of the described entity
+  steering_effect: conditioned_vs_unconditioned_shift   # novelty preserved
+  compare_to_served: false  # G7: owned numbers never blended with Pinal/ESM-2
+
+provenance:
+  config_hash: "TBD-at-first-run"
+  projection_recipe_read: "Pinal (Dai et al., Nature 2026) + SaProt-T text projection"
+  methods_read: "2026-10-23"

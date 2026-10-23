@@ -371,6 +371,32 @@ bio_tools:
     hosted_by_us: true
     notes: "PLANNED, not yet downloaded (G1: manifest + sha256 written at fetch-verify time). Attribution ships with any release (C5 analog, phfm precedent). Molek steering consumes descriptor STATISTICS of positives, not bulk redistribution."
 
+  - id: minilm-text
+    function: "frozen text encoder for OWNED NLP intent layer (molecule arm), N-NLP-1"
+    role: agri
+    phase: "P2 (scope addition A8, Stan-authorized 2026-10-23)"
+    license: "Apache-2.0 (verified live 2026-10-23: HF sentence-transformers/all-MiniLM-L6-v2 LICENSE file)"
+    date_checked: "2026-10-23"
+    source: "HF sentence-transformers/all-MiniLM-L6-v2 (384-d)"
+    sizes: "~22M (frozen; we train only the projection head)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Base encoder FROZEN; only our projection (intent-mol, N-NLP-1) is trained. Owned adapter, not a from-scratch large model (G9)."
+
+  - id: protrek-text
+    function: "protein-text aligned text encoder for OWNED NLP intent layer (protein arm), N-NLP-3"
+    role: agri
+    phase: "P2 (scope addition A8)"
+    license: "MIT (verified live 2026-10-23: github.com/westlake-repl/ProTrek LICENSE)"
+    date_checked: "2026-10-23"
+    source: "HF westlake-repl/ProTrek_650M (text encoder 130M); Nature Biotech 2025"
+    sizes: "130M text encoder (frozen)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Frozen; sharpens the protein-intent arm vs MiniLM. Only our projection (intent-seq, N-NLP-2) is trained."
+
   - id: pinal
     function: "text->protein programmable design (natural-language -> 3Di structure -> sequence); SERVE-first (16B)"
     role: generation_core

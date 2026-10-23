@@ -77,6 +77,15 @@ verbatim-sourced; this file tracks the *reading*, not the numbers).
   SaProt-T text-projection matrix detail) when/if we self-host — cite-only; their
   wet-lab GFP/enzyme results are theirs (G7), never claimed as ours.
 
+### NLP intent heads (OWNED, A8) — MiniLM (Apache-2.0) / ProTrek (MIT) + Pinal projection recipe — READ ✅ (2026-10-23)
+- Base encoders read: all-MiniLM-L6-v2 card (Apache-2.0, 384-d, frozen) + ProTrek
+  (MIT, protein-text aligned, Nat Biotech 2025). Projection recipe read from Pinal
+  (trainable W: text embedding → PLM space, p(s|c,t)) + SaProt-T — G11 satisfied.
+- Owned part = the projection heads only (intent-mol N-NLP-1, intent-seq N-NLP-2);
+  spec `docs/nlp-intent-spec.md`, config `configs/nlp-intent.yaml`.
+- **Status: sufficient to build intent-mol** once ChEBI text↔descriptor pairs are
+  fetched (free with the farm-knob). intent-seq follows Seqgen.
+
 ### ESM-2 (facebookresearch) — Lin et al., Science 379 (2023) — REGISTERED ❌ deep-read pending
 - License/citation verified earlier (MIT; `esm2_t6_8M_UR50D` … `esm2_t33_650M_UR50D`).
 - **Pending (Phase-2/3 novelty gates + scoring)**: which checkpoint(s) we pin for

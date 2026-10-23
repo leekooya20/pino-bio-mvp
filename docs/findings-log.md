@@ -74,6 +74,21 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0012 | 2026-10-23 | Scope addition — OWNED NLP intent layer (text → our generators)
+
+- **Observation/decision (Stan-authorized):** add natural language to OUR models, not
+  just serve Pinal. Design: frozen open text encoder (MiniLM Apache-2.0 / ProTrek MIT)
+  + OUR trained projection heads → Molek farm-knob targets (intent-mol) and Seqgen
+  control (intent-seq). Only the projections are owned/trained → tiny, Kaggle-feasible.
+- **Evidence:** `docs/nlp-intent-spec.md`, `configs/nlp-intent.yaml` (N-NLP-1..4);
+  licenses `minilm-text`, `protrek-text`; capability A8.
+- **Impact:** key free lever discovered — **ChEBI entries already pair a natural-language
+  definition with a molecule**, so intent-mol gets (text, descriptor) training pairs for
+  free alongside the farm-knob data; it can train before Molek's checkpoint exists.
+  Honesty guards: OOD gate (N-NLP-4) flags prompts outside training clusters; owned
+  numbers never blended with served Pinal/ESM-2 (G7); G9 honored by keeping it an
+  adapter, never a from-scratch 16B.
+
 ## F-0011 | 2026-10-23 | Scope addition — Pinal (text→protein), SERVE-first by necessity
 
 - **Observation:** Pinal (Dai et al., Nature 2026; westlake-repl/Denovo-Pinal,
