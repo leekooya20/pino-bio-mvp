@@ -22,7 +22,7 @@ subprocess.run(["bash", "-lc", f"git clone --depth 1 {prefix}leekooya20/pino-bio
 os.chdir("/kaggle/pino-bio-mvp")
 
 # %% [cell 2] deps (rdkit via pip; keep torch as Kaggle preinstalled)
-subprocess.run(["bash", "-lc", "pip install -q rdkit orderedset tabulate structlog pyyaml tqdm seaborn networkx scipy"], check=True)
+subprocess.run(["bash", "-lc", "pip install -q rdkit ordered-set tabulate structlog pyyaml tqdm seaborn networkx scipy"], check=True)  # M-MOFLOW-6: ordered-set (pure-Python) replaces orderedset (no 3.13 wheel)
 
 # %% [cell 3] pin reference code + documented patches (G11: applies M-MOFLOW-5 shim)
 subprocess.run(["python", "scripts/fetch_thirdparty.py"], check=True)

@@ -1,0 +1,19 @@
+﻿diff --git a/mflow/generate.py b/mflow/generate.py
+index 7c7473a..2198cf1 100644
+--- a/mflow/generate.py
++++ b/mflow/generate.py
+@@ -8,7 +8,13 @@ import torch
+ import torch.nn as nn
+ import numpy as np
+ import pandas as pd
+-from orderedset import OrderedSet
++try:
++    from orderedset import OrderedSet  # noqa: F401  (original Cython wheel, Python <=3.12)
++except ImportError:
++    # M-MOFLOW-6 compat shim (PinoBio): the original `orderedset` wheel cannot
++    # build on Python 3.13+; the maintained pure-Python `ordered-set` package
++    # exposes the identical OrderedSet API as module name `ordered_set`.
++    from ordered_set import OrderedSet
+ import torch
+ import numpy as np
+ # from chainer.backends import cuda
