@@ -88,6 +88,14 @@ datasets:
     derivative_ok: true
     contains_pii: false
     basis: "UniProt consortium license permits open use; training data for ProtGPT2 recipe replication; re-verify snapshot license at download time"
+  - id: uniprot-crop-proteomes
+    domain: bio
+    license: "CC BY 4.0"
+    retrieved_at: "2026-10-23"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: false
+    basis: "UniProt proteomes allow redistribution under CC BY 4.0; crop-enriched arm (rice/Oryza sativa first, then maize/coconut/mango/soy) shared with second agent's ESM-2 arm — attribution required on redistribution; verify per-release proteome availability"
 
 teachers:
   - id: deepseek-v4-pro
