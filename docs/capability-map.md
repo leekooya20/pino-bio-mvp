@@ -53,5 +53,7 @@ Reproducibility trio at bottom: seed `20261023` · config `a1288cc8…` · pinne
 4. **D4** — ProtGPT2: paper Methods read → UR50+rice manifests → `seqgen-ur50.yaml` locked
 5. **D5** — serving layer: RFD4 container + `/v1` FastAPI with job schema (A6)
 6. **D6** — §6 PPI subset run → actually EARN the public capability language
-7. **D7** — workbench page renders real job trajectories (§7) → SciACA patch application
-   (waiting on Stan's apply-or-clone decision — the only user-blocked item)
+7. **D7** — workbench page renders real job trajectories (§7); SciACA patch application
+   ✅ **done 2026-10-23**: applied to `aeodev/SciACA` main as PR #1 → merge `bd50977`
+   (local working clone: `C:\Users\STAN\OneDrive\Documents\SciACA`; full `npm run build`
+   green). No remaining user-blocking actions.
