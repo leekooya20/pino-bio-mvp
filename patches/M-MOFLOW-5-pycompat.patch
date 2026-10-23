@@ -1,0 +1,72 @@
+diff --git a/mflow/generate.py b/mflow/generate.py
+index 7c7473a..b54055a 100644
+--- a/mflow/generate.py
++++ b/mflow/generate.py
+@@ -3,7 +3,18 @@ import os
+ import sys
+ # for linux env.
+ sys.path.insert(0,'..')
+-from distutils.util import strtobool
++try:
++    from distutils.util import strtobool  # noqa: F401  (Python <=3.11)
++except ImportError:
++    # M-MOFLOW-5 compat shim (PinoBio): Python 3.12+ removed distutils.
++    # Semantics identical to the original helper; no behavior change for <=3.11.
++    def strtobool(value):
++        s = str(value).strip().lower()
++        if s in ('y', 'yes', 't', 'true', 'on', '1'):
++            return 1
++        if s in ('n', 'no', 'f', 'false', 'off', '0'):
++            return 0
++        raise ValueError('invalid truth value %r' % (value,))
+ import torch
+ import torch.nn as nn
+ import numpy as np
+diff --git a/mflow/optimize_property.py b/mflow/optimize_property.py
+index 9195d2c..3291834 100644
+--- a/mflow/optimize_property.py
++++ b/mflow/optimize_property.py
+@@ -3,7 +3,18 @@ import os
+ import sys
+ # for linux env.
+ sys.path.insert(0,'..')
+-from distutils.util import strtobool
++try:
++    from distutils.util import strtobool  # noqa: F401  (Python <=3.11)
++except ImportError:
++    # M-MOFLOW-5 compat shim (PinoBio): Python 3.12+ removed distutils.
++    # Semantics identical to the original helper; no behavior change for <=3.11.
++    def strtobool(value):
++        s = str(value).strip().lower()
++        if s in ('y', 'yes', 't', 'true', 'on', '1'):
++            return 1
++        if s in ('n', 'no', 'f', 'false', 'off', '0'):
++            return 0
++        raise ValueError('invalid truth value %r' % (value,))
+ 
+ import pickle
+ import torch
+diff --git a/mflow/train_model.py b/mflow/train_model.py
+index c3ab457..b023125 100644
+--- a/mflow/train_model.py
++++ b/mflow/train_model.py
+@@ -4,7 +4,18 @@ import sys
+ # for linux env.
+ sys.path.insert(0,'..')
+ import argparse
+-from distutils.util import strtobool
++try:
++    from distutils.util import strtobool  # noqa: F401  (Python <=3.11)
++except ImportError:
++    # M-MOFLOW-5 compat shim (PinoBio): Python 3.12+ removed distutils.
++    # Semantics identical to the original helper; no behavior change for <=3.11.
++    def strtobool(value):
++        s = str(value).strip().lower()
++        if s in ('y', 'yes', 't', 'true', 'on', '1'):
++            return 1
++        if s in ('n', 'no', 'f', 'false', 'off', '0'):
++            return 0
++        raise ValueError('invalid truth value %r' % (value,))
+ import torch
+ import torch.nn as nn
+ 

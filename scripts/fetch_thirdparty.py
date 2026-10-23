@@ -58,6 +58,21 @@ def main() -> int:
             "pinned_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         }
         print(f"ok  {name} @ {sha[:12]} ({expect})")
+
+        # Apply our documented modification patches (never silent, one file per mod ID).
+        patches_dir = ROOT / "patches"
+        if name == "moflow" and patches_dir.exists():
+            for bf in sorted(patches_dir.glob("*.patch")):
+                try:
+                    sh(["git", "apply", "--check", str(bf)], cwd=dest)   # fails loudly if context drifted
+                    sh(["git", "apply", str(bf)], cwd=dest)
+                    print(f"ok  applied {bf.name} to moflow")
+                except subprocess.CalledProcessError:
+                    # likely already applied on a re-run — verify reversibility as proof
+                    sh(["git", "apply", "--reverse", "--check", str(bf)], cwd=dest)
+                    print(f"ok  {bf.name} already applied")
+
+
     (TP / "PINNED.json").write_text(json.dumps(pinned, indent=2), encoding="utf-8")
     print(f"wrote {TP / 'PINNED.json'}")
     return 0
