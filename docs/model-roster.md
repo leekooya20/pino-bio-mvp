@@ -32,10 +32,19 @@ on a frozen open base (intent heads, ESM-2 LoRA). Small, Kaggle-feasible, owned.
 
 | Model | Role | License | What WE ADD |
 |---|---|---|---|
+| **MegaMolBART** | molecule generation (alt to Molek) | Apache-2.0 | a `/v1` mol.generate alt wrapper (served, Stan 2026-10-24) |
+| **DiffDock** | molecule↔protein docking / pose — **in our optimize loop** | MIT / NVIDIA Open | a `/v1` dock-ligand wrapper (we dock OUR molecules; FLORA never touches molecules) |
 | **RFD4-Proteina** | binder/backbone design | BSD-3 | a `/v1` wrapper + reasoning_depth→thinking + search_criteria passthrough |
 | **ESM-2** | sequence scoring | MIT | a scorer wrapper (+ optional LoRA, Tier 2) |
-| **ESMFold / Boltz-2 / Chai / AF3** | fold validation ladder | MIT / MIT / Apache / gated | honest rung selection + labels (§8) |
+| **ESMFold / Boltz-2 / Chai / AF3 / OpenFold / AF2** | fold / structure validation ladder | MIT / MIT / Apache / gated / Apache / gated | honest rung selection + labels (§8); used to VALIDATE our designs |
 | **Pinal** | text→protein design | Apache-2.0 | a `/v1` wrapper (16B — served, never from-scratch) |
+
+### Plan-roster ownership (Stan's list, 2026-10-24)
+- **Generative chemistry** — MoFlow (**ours**, Molek) · MegaMolBART (**ours**, served alt)
+- **Protein generation** — ProtGPT2 (**ours**, Seqgen)
+- **Pose prediction** — DiffDock (**ours**, served, in our optimize loop)
+- **Embeddings / property prediction** — ESM1/ESM2 (**FLORA**'s analysis; we use ESM-2 served as a scorer)
+- **3D structure prediction** — OpenFold / AlphaFold2 / ESMFold (**FLORA** analyzes existing proteins; we use them only to VALIDATE our designs, §8)
 
 For served models we **add nothing to their weights** — we add wrappers, honest
 passthrough, and our own adapters *beside* them. Their numbers stay cited, never blended

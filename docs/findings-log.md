@@ -74,6 +74,22 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0017 | 2026-10-24 | Plan-roster mapped — MegaMolBART + DiffDock registered to GenD (Stan)
+
+- **Observation (Stan's plan roster):** generative chemistry = MegaMolBART + MoFlow;
+  protein generation = ProtGPT2; pose prediction = DiffDock; embeddings/property = ESM1/2;
+  3D structure = OpenFold/AF2/ESMFold.
+- **Decisions (Stan 2026-10-24):** MegaMolBART → **served alt** molecule generator
+  (Apache-2.0, not from-scratch; Molek stays our owned one). DiffDock → **ours, served**
+  in the optimize loop (MIT/NVIDIA Open) — docking sits on the molecule-design side since
+  FLORA never touches molecules.
+- **Registered:** licenses (megamolbart Apache-2.0, diffdock MIT/NVIDIA Open — both
+  verified live), model cards, `/v1` `dock-ligand` task + megamolbart alt route,
+  `diffdock_runtime.py` + `megamolbart_runtime.py` (honest pending), roster doc.
+- **Boundary reaffirmed:** ESM1/2 + OpenFold/AF2/ESMFold are FLORA's analysis tools; we
+  only use ESM-2 (scoring) and the fold models (§8 validation) on OUR side — cited, never
+  blended. All GENERATIVE items (MoFlow/MegaMolBART/ProtGPT2/DiffDock) are GenD's.
+
 ## F-0016 | 2026-10-24 | Confirmed — GenD owns 100% of generate/design (FLORA is analysis-only)
 
 - **Observation (Stan, w/ FLORA scope screenshot):** the analysis agent is named FLORA

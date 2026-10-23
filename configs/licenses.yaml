@@ -397,6 +397,32 @@ bio_tools:
     hosted_by_us: true
     notes: "Frozen; sharpens the protein-intent arm vs MiniLM. Only our projection (intent-seq, N-NLP-2) is trained."
 
+  - id: megamolbart
+    function: "generative chemistry (SMILES BART autoencoder) — SERVED alt molecule generator beside Molek"
+    role: generation_core
+    phase: "P2 (from Stan's plan roster; serve-decision 2026-10-24)"
+    license: "Apache-2.0 (verified live 2026-10-24: NVIDIA BioNeMo MegaMolBART model card / NVIDIA/MegaMolBART LICENSE)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA/MegaMolBART · NGC nvcr.io/nvidia/clara/megamolbart"
+    sizes: "45M (xsmall/small/large configs)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "SERVED (Stan decision 2026-10-24: alt generator, not from-scratch — Molek stays our owned one). /v1 mol.generate alt. Its numbers stay cited, never blended with Molek's (G7)."
+
+  - id: diffdock
+    function: "molecule<->protein pose prediction (blind docking) — SERVED tool in OUR generate->screen->optimize loop"
+    role: generation_core
+    phase: "P2 (Stan decision 2026-10-24: ours, FLORA never touches molecules)"
+    license: "MIT (orig gcorso) / NVIDIA Open Model License (NVIDIA-trained v2.2+) — verified live 2026-10-24"
+    date_checked: "2026-10-24"
+    source: "github.com/gcorso/DiffDock (MIT) · build.nvidia.com/mit/diffdock (NIM)"
+    sizes: "score + confidence models; served"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "SERVED; we dock OUR generated molecules against targets (pose + confidence). Docking sits on the molecule-design side (FLORA is protein-analysis-only). Poses/scores cited as DiffDock's, never blended (G7)."
+
   - id: pinal
     function: "text->protein programmable design (natural-language -> 3Di structure -> sequence); SERVE-first (16B)"
     role: generation_core

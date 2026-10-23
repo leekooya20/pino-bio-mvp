@@ -24,8 +24,16 @@ def _pending(note: str, **extra) -> dict:
 
 # --- mol.generate  (task: generate-molecule / explore-chemistry) â†’ Molek-30M ---
 def mol_generate(inputs: dict) -> dict:
-    ckpt = os.environ.get("MOLEK_CKPT", str(ROOT / "artifacts" / "molek-30m" / "model.pt"))
     n = int(inputs.get("n", 10))
+    # MegaMolBART served alt (Stan 2026-10-24): route when model=megamolbart + endpoint set.
+    if inputs.get("model") == "megamolbart":
+        endpoint = os.environ.get("MEGAMOLBART_ENDPOINT", "")
+        if not endpoint:
+            return _pending("MegaMolBART endpoint not configured (served alt generator, Apache-2.0). "
+                            "No molecules fabricated (G7).", model="megamolbart", served=True, requested_n=n)
+        from importlib import import_module
+        return import_module("serving.runtimes.megamolbart_runtime").sample(endpoint=endpoint, inputs=inputs)
+    ckpt = os.environ.get("MOLEK_CKPT", str(ROOT / "artifacts" / "molek-30m" / "model.pt"))
     if not Path(ckpt).exists():
         return _pending(
             "Molek-30M checkpoint not available yet (run #7 training). No molecules "
@@ -142,6 +150,19 @@ def text_design(inputs: dict) -> dict:
     return client.design(endpoint=endpoint, inputs=inputs)
 
 
+def dock_ligand(inputs: dict) -> dict:
+    """dock-ligand (DiffDock served, in our optimize loop) — pose prediction."""
+    endpoint = os.environ.get("DIFFDOCK_ENDPOINT", "")
+    if not endpoint:
+        return _pending(
+            "DiffDock endpoint not configured (set DIFFDOCK_ENDPOINT; served, in our "
+            "optimize loop). No poses fabricated (G7).",
+            model="diffdock", served=True,
+        )
+    from importlib import import_module
+    return import_module("serving.runtimes.diffdock_runtime").dock(endpoint=endpoint, inputs=inputs)
+
+
 # SciACA task â†’ tool (spec Â§10.2). Unknown task â‡’ validation error (Â§11).
 TASK_TOOL = {
     "generate-molecule": mol_generate,
@@ -149,6 +170,7 @@ TASK_TOOL = {
     "design-sequence": seq_generate,
     "design-binder": design_backbone,
     "design-from-text": text_design,
+    "dock-ligand": dock_ligand,
     "optimize-property": esm_score,
     "fold-protein": esm_fold,
     "fold-complex": esm_fold,
