@@ -74,6 +74,20 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0019 | 2026-10-24 | Adaptation ladder recorded — CPT/SFT/LoRA for the big served ones (Stan)
+
+- **Decision (Stan):** for served models too big to build from scratch, the ownership
+  path is CPT / SFT / LoRA on their OPEN weights — ideally on our crop/agri data (the
+  moat). Recorded the full ladder + per-model feasibility in `docs/model-roster.md`.
+- **Honest ownership rule (G7):** adaptation = we own the ADAPTER/DELTA, not the base
+  ("our agri-adapter on RFD4-Proteina", never "our model"). Only Molek/Seqgen are
+  genuinely from-scratch-ours.
+- **Feasible now (LoRA/SFT):** RFD4-Proteina (BSD-3, T4-LoRA), DiffDock (MIT), ESM-2
+  scorer (MIT, already Tier-2). **Blocked:** Proteina-Complexa/La-Proteina/Eden (license
+  TBD, G11), AgroNT (NC HOLD), Evo 2-40B (compute). 7B Evo LoRA needs a real GPU.
+- **Scope note:** plan recorded only — no training started; each future run obeys G1 +
+  G11 + G7.
+
 ## F-0018 | 2026-10-24 | Authoritative scope = FLORA's OUT list (incl. new DNA-gen modality)
 
 - **Observation (Stan, FLORA policy screenshot):** FLORA's "OUT — excluded by policy"

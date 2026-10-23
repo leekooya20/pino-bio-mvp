@@ -77,6 +77,41 @@ Honest flags: Proteina-Complexa / La-Proteina / Eden are **registered in scope b
 usable until their license is read live (G1/G11)**. AgroNT is **held** — crop-relevant
 but NC-licensed, so never shipped in a commercial path unless relicensed.
 
+## Adaptation ladder — how we "make ours" what we can't build from scratch (Stan 2026-10-24)
+
+From-scratch is reserved for small models (Kaggle T4 + open data + recipe read). For the
+big served ones, the realistic ownership path is **CPT / SFT / LoRA** on their open
+weights — most useful when done on **our crop/agri data** (that's the moat).
+
+| Approach | What it is | What we OWN |
+|---|---|---|
+| **From scratch** | train whole model from zero | the whole model (Molek, Seqgen) |
+| **CPT** (continued pre-training) | keep pre-training their open weights on our crop/agri corpus | base theirs + our continued-training delta |
+| **SFT** (supervised fine-tune) | fine-tune their weights on our task/instruction data | base theirs + our fine-tune |
+| **LoRA / PEFT** | train a small adapter on frozen weights | just the adapter (tiny, T4-cheap) |
+| **Served** | call it, no training | nothing (we only wrap it) |
+
+**Honest ownership rule (G7):** CPT/SFT/LoRA → we own the **adapter/delta, NOT the base**.
+We say "our agri-adapter on RFD4-Proteina," never "our model." Base license governs.
+Only Molek/Seqgen are genuinely our weights (from scratch).
+
+### Per-model feasibility (open weights · license · compute)
+
+| Model | Open weights | License allows | Compute fit | Verdict |
+|---|---|---|---|---|
+| **RFD4-Proteina** | ✅ HF | ✅ BSD-3 | 434M → LoRA fits T4 | ✅ LoRA/SFT feasible |
+| **DiffDock** | ✅ | ✅ MIT | smaller | ✅ fine-tune feasible |
+| **Evo 2** | ✅ | ✅ Apache | 7B LoRA (big GPU) / 40B no | ⚠️ LoRA on 7B only, real GPU |
+| **ESM-2** (our scorer use) | ✅ | ✅ MIT | 650M → LoRA T4 | ✅ LoRA (Tier-2, already planned) |
+| **Proteina-Complexa / La-Proteina** | TBD | **TBD** | — | ⛔ blocked until license read (G11) |
+| **Eden** | TBD | TBD | — | ⛔ identity + license first |
+| **AgroNT** | — | **NC** | — | ⛔ license HOLD (no commercial FT) |
+
+**The moat:** CPT/SFT these on crop/agri data → "served-but-tuned-by-us-for-PH-agriculture."
+Same pattern as the ESM-2 LoRA and the NLP intent heads already in Tier-2. Nothing here is
+built yet — this is the standing adaptation plan; each run obeys G1 (license) + G11
+(recipe read) + G7 (own the adapter, not the base).
+
 ## One-line summary
 
 - **From scratch (our weights):** Molek-30M, Seqgen-small.
