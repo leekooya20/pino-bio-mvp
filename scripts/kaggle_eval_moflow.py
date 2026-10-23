@@ -8,6 +8,7 @@ SHORT run (~20-30 min, sampling only) — NOT training.
 Inputs attached: leexze/molek-30m-ckpt, basu369victor/zinc250k.
 Outputs: /kaggle/working/eval/eval_summary.json (+ corrected/uncorrected logs).
 """
+import glob
 import os
 import shutil
 import subprocess
@@ -24,7 +25,13 @@ subprocess.run(["bash", "-lc", "cd third_party/moflow/data && python data_prepro
 run_dir = "/kaggle/pino-bio-mvp/artifacts/molek-eval"
 snap_dir = run_dir + "/snapshots"
 os.makedirs(snap_dir, exist_ok=True)
-shutil.copy("/kaggle/input/molek-30m-ckpt/model_snapshot_epoch_197", snap_dir + "/model_snapshot_epoch_197")
+# robust checkpoint lookup: the dataset mount path can vary; search recursively + show tree
+print("input tree:", os.listdir("/kaggle/input"))
+cands = glob.glob("/kaggle/input/**/model_snapshot_epoch_197", recursive=True)
+print("checkpoint candidates:", cands)
+if not cands:
+    raise FileNotFoundError("checkpoint not found under /kaggle/input (see tree above)")
+shutil.copy(cands[0], snap_dir + "/model_snapshot_epoch_197")
 subprocess.run(["bash", "-lc",
                 f"cd third_party/moflow/mflow && python /kaggle/pino-bio-mvp/scripts/reconstruct_moflow_params.py {snap_dir}/moflow-params.json"],
                check=True)
