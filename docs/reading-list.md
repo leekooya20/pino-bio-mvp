@@ -39,14 +39,27 @@ verbatim-sourced; this file tracks the *reading*, not the numbers).
      (1024 total), 65,536 tokens/batch, DeepSpeed.
 - **Status: sufficient to LOCK `configs/seqgen-ur50.yaml`** (done 2026-10-23, P-PTGPT2-1..5).
 
-### RFD4-Proteina — 2026 preprint (UW IPD × NVIDIA) — SITE-READ ✅ / DEEP-DOCS ❌ pending serving
+### RFD4-Proteina — 2026 preprint (UW IPD × NVIDIA) — SITE-READ ✅ / DEEP-DOCS READ ✅ (2026-10-23)
 - Site read (home, resources, leaderboard) 2026-10-23; benchmark protocol + data.json
   structure decoded (3,073 rows, revision-pinned, sha256'd).
 - License: BSD-3-Clause, verified via GitHub API 2026-10-23. Weights: `nvidia/RFD4-Proteina`.
-- **Pending (Phase-3 serving)**: read their docs site (`/latest/`: quickstart, installation,
-  search guide, metrics, API reference) closely enough to write our `/v1` wrapper:
-  condition-spec → annotated CIF, `reasoning_depth` + `search_criteria` passthrough,
-  output artifact handling. Preprint PDF read is cite-only (we claim nothing of theirs).
+- **Deep docs READ 2026-10-23** (rfd4-proteina.org/latest, RosettaCommons/RFD4-Proteina
+  README, NVIDIA NIM overview). Facts that shaped `serving/runtimes/proteina_runtime.py`:
+  - **Serving path = NVIDIA NIM synchronous HTTP endpoint** → we never run RFD4 in-process
+    (it needs Linux x86_64 + py3.12 + CUDA GPU); this cleanly resolves the py3.12-vs-3.13
+    conflict. See F-0010.
+  - Two input dialects: annotated mmCIF (self-contained) OR condition spec (YAML/JSON +
+    attached structures as NAMED FILES in the body, never filesystem paths).
+  - Tasks = sampler trajectory, not the design problem: `generation`, `motif_scaffolding`,
+    `partial_diffusion`, `inverse_folding`. A binder = `generation` with target atoms held
+    (coord/seq conditioning) + epitope hotspots.
+  - **`thinking_low`/`thinking_high`** = compute budget → our §7 `reasoning_depth` maps onto
+    it; reward-guided beam search config → our §7 `search_criteria` maps onto it.
+  - Params 4.34e8 (trunk 1.78e8 + AE 2.56e8), latent flow-matching, self-cond off, no MSA,
+    design length ≤1024 tokens. NVIDIA verification = 87 annotated-mmCIF inputs / 12
+    conditioning families.
+- **Status: sufficient — wrapper written** (`serving/runtimes/proteina_runtime.py`). Live
+  use gated on a reachable `PROTEINA_ENDPOINT` (NIM/container).
 
 ## Our served models
 

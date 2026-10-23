@@ -74,6 +74,20 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0010 | 2026-10-23 | RFD4-Proteina serves via NVIDIA NIM HTTP — resolves the py3.12/3.13 conflict
+
+- **Observation:** RFD4-Proteina requires Linux x86_64 + Python 3.12 + CUDA GPU
+  (macOS/Windows unsupported; ~7 GB env). It cannot run in our Kaggle py3.13 /
+  arbitrary runtime. BUT it ships an **NVIDIA NIM: a single synchronous HTTP
+  endpoint** returning backbone + sequence — so we serve it out-of-process and the
+  version conflict simply disappears.
+- **Evidence:** rfd4-proteina.org/latest installation + docs.nvidia.com/nim/bionemo/
+  rfd4-proteina overview; wrapper `serving/runtimes/proteina_runtime.py`.
+- **Impact:** our `design.backbone` tool is a thin HTTP client, never an in-process
+  import. Also learned the §7 mapping: `reasoning_depth` → `thinking_low/high`,
+  `search_criteria` → reward-guided beam search. Input security property preserved:
+  structures are named files in the request body, never filesystem paths.
+
 ## F-0009 | 2026-10-23 | ProtGPT2's learning rate is CONSTANT — no schedule (card ambiguity resolved)
 
 - **Observation:** paper Methods state Adam (β1=0.9, β2=0.999), **LR 1e-3** with **no
