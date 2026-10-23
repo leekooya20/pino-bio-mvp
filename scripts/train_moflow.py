@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -148,7 +149,13 @@ def main() -> int:
     (run_dir / "run_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     ref_args = build_reference_args(cfg)
-    snap_dir = run_dir / "snapshots"
+    # M-MOFLOW-12 (crash-safety): snapshots go to a PERSISTENT dir when MOLEK_SNAP_DIR is
+    # set (on Kaggle = /kaggle/working/... so they survive as kernel output). The reference
+    # saves a snapshot EVERY epoch (train_model.py save_epochs default 1), so per-epoch
+    # progress is captured; a background pusher (scripts/kaggle_ckpt_push.py) ships them to a
+    # Kaggle Dataset so even a session ceiling-cut mid-run does not lose the done epochs.
+    snap_dir = Path(os.environ.get("MOLEK_SNAP_DIR", str(run_dir / "snapshots")))
+    snap_dir.mkdir(parents=True, exist_ok=True)
     ref_args += [
         "--save_dir", str(snap_dir),                       # centralize snapshots in our run dir
         "--seed", str(cfg["run"]["seed"]),                 # reference --seed exists (train_model.py:76) — G10

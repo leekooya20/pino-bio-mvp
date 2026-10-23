@@ -74,6 +74,23 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0015 | 2026-10-24 | Honest correction — run #7 was NOT crash-safe against a ceiling-cut
+
+- **Observation (Stan flagged checkpoint safety):** audit found the earlier "checkpoint-
+  resume takes over" claim was too optimistic. The reference saves a snapshot EVERY epoch
+  (train_model.py save_epochs default 1) — good — BUT run #7 writes them to
+  `/kaggle/pino-bio-mvp/artifacts/<run>/snapshots/`, the EPHEMERAL repo clone. Kaggle
+  persists only `/kaggle/working`, and only on a successful commit; cell 7 (copy→working)
+  runs ONLY if training completes. So a ~12h ceiling-cut mid-run would lose every done
+  epoch and leave nothing to resume from.
+- **Fix (M-MOFLOW-12):** `MOLEK_SNAP_DIR=/kaggle/working/molek-snapshots` (snapshots land
+  in the persistent dir as created) + background `scripts/kaggle_ckpt_push.py` ships them
+  to Kaggle Dataset `leexze/molek-checkpoints` every 15 min, so a ceiling-cut keeps the
+  done epochs; next run `--resume` restores from the dataset. Compile-clean, 27 tests green.
+- **Impact on run #7:** #7 is ALREADY RUNNING with the old (unsafe) cell — it cannot be
+  patched in place. If it completes before the ceiling → fine. If it is killed → its
+  progress is likely lost and we relaunch the crash-safe version. Decision pending (Stan).
+
 ## F-0014 | 2026-10-23 | Scope-discipline check (Stan) — breadth-before-depth risk flagged
 
 - **Observation (Stan):** reminder to stay in scope. Audit result: nothing is OUT of

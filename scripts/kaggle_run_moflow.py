@@ -35,13 +35,31 @@ subprocess.run(["bash", "-lc", "cd third_party/moflow/data && python data_prepro
 
 # %% [cell 6] param-budget preflight (M-MOFLOW-1: fail if > 30M) + training start
 # resumable: rerun THIS cell with --resume after a session-kill; it finds the latest snapshot.
+# M-MOFLOW-12 (crash-safety): snapshots go to the PERSISTENT /kaggle/working dir, and a
+# background pusher ships them to a Kaggle Dataset so a ceiling-cut mid-run loses nothing.
+import os
+import subprocess
 import sys
+import threading
+
+SNAP_DIR = "/kaggle/working/molek-snapshots"
+os.makedirs(SNAP_DIR, exist_ok=True)
+os.environ["MOLEK_SNAP_DIR"] = SNAP_DIR  # train_moflow.py reads this (persistent snapshots)
+
+# background checkpoint pusher (best-effort; no-op without Kaggle API creds — G8)
+def _ckpt_pusher():
+    subprocess.run(["python", "scripts/kaggle_ckpt_push.py",
+                    "--snap-dir", SNAP_DIR, "--dataset", "leexze/molek-checkpoints",
+                    "--every", "900"])
+threading.Thread(target=_ckpt_pusher, daemon=True).start()
 
 sys.path.insert(0, "scripts")
 from train_moflow import main as train_main  # noqa: E402
 
+# --resume picks up the latest snapshot from MOLEK_SNAP_DIR (attach leexze/molek-checkpoints
+# as a dataset and copy it into SNAP_DIR first when resuming a killed run).
 sys.argv = ["train_moflow.py", "--config", "configs/molgen-zinc250k.yaml"]
-rc = train_main()  # long-running; Kaggle user can interrupt and rerun with --resume
+rc = train_main()  # long-running; on a kill, relaunch this cell with --resume
 rc
 
 # %% [cell 7] persist artifacts out of the session (12h wall)
