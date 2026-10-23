@@ -166,3 +166,28 @@ Plan (runs AFTER serving layer ships; dependencies noted):
 
 OPEN: whether we run this on Kaggle GPU quota vs local GPU — decided at serving time.
 
+---
+
+## 7. PLANNED (later): "Unified Latent Reasoning" trajectory workbench — Stan's pick
+
+Reference (site §Unified Latent Reasoning, screenshot 2026-10-23): an enzyme-design
+trajectory — latent point cloud → global topology → sequence + structure (× leurs adaptive
+depth) → fine-scale contacts → AF3 refold — with **adaptive reasoning depth** per stage
+(×2 / ×5 / ×2) and **time-dependent search criteria** checkboxes (large interface area ×2,
+many interface H-bonds ×5, high AF3 interface confidence ×2).
+
+Scope split (honest, G7):
+
+| Piece | Who does it |
+|---|---|
+| Adaptive thinking budgets (low/med/high), multi-recourse refinement | **theirs** — it's native RFD4-Proteina behavior; we expose it as a `reasoning_depth` job parameter through our `/v1` tool wrapper |
+| Reward-guided search with arbitrary criteria | **theirs** (code ships search; BSD-3) — our wrapper maps time-dependent criteria (interface area, H-bond count, confidence) onto their search interface |
+| AF3 refold gate | **theirs only for their published numbers**; our loop gates with ESMFold/Chai (honest "not-AF3" label) until AF3 access exists |
+| Trajectory visualization (stage panels, latent snapshots, per-stage metrics) | **ours** — a SciACA-designable workbench page fed by our `/v1` job artifacts |
+| Multi-molecule demos (peptide–DNA linkage, glycan/phospho stories) | **theirs** via model capability — we reproduce as demo recipes, never claiming their wet-lab results |
+
+Order of work: (1) serving layer ships `reasoning_depth` + `search_criteria` passthrough,
+(2) job artifacts record per-stage snapshots (for the workbench UI), (3) the PPI benchmark
+(§6) validates capability claims BEFORE any public-facing demo language.
+
+
