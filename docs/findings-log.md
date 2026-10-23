@@ -74,6 +74,22 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0022 | 2026-10-24 | D3 DONE — Molek-30M matches reference (corrected); uncorrected path has a bug
+
+- **Result:** Molek-30M (epoch 197/200) eval, 10k×5 @ T=0.85. Corrected: validity 99.94%
+  (sd .02), novelty 100.0%, uniqueness 100.0%, abs_novelty 99.93%, abs_uniqueness 99.93%.
+  Reference pinned README: validity 100.00%, novelty 100.00% → **we MATCH at 30M scale-down.**
+  Saved: docs/results/molek-30m-D3.md + .json.
+- **Honest caveat (G7):** the uncorrected run (`--correct_validity false`) reported
+  `0/10000 valid` then crashed `UnboundLocalError: abs_novel_ratio` in reference
+  check_novelty (no 0-valid path). 0% is a BROKEN measurement, not a model result — not
+  presented as honest. M-MOFLOW-4 dual-report INCOMPLETE until fixed.
+- **Recovery arc worth noting:** run that "errored at 10h" actually trained to epoch 197
+  and saved it; the error was tail-end only. The 10h was NOT wasted. Eval then hit a
+  dataset mount-path bug (fixed with recursive glob), then completed clean.
+- **Next:** diagnose 0% uncorrected + patch check_novelty 0-valid crash → rerun for the
+  honest uncorrected number → then MOSES (sota-roadmap rung 2).
+
 ## F-0021 | 2026-10-24 | Screenshot log = OLD run #6 (pre-M10 cairosvg crash); current chain VERIFIED clean
 
 - **Trigger:** Stan screenshotted the Kaggle Logs tab showing `ModuleNotFoundError: No

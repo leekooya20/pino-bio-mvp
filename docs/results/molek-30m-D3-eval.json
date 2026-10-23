@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-10-23T22:39:48+0000",
+  "snapshot": "model_snapshot_epoch_197",
+  "snapshot_sha256": "7f8374df3cb86e31182d4a42ff1bfd2d97df7edd5b788c9cd1090e6dbf722228",
+  "n_samples": 10000,
+  "temperature": 0.85,
+  "experiments": 5,
+  "corrected": {
+    "validity": 99.94,
+    "novelty": 100.0,
+    "uniqueness": 100.0,
+    "abs_novelty": 99.93,
+    "abs_uniqueness": 99.93
+  },
+  "uncorrected": {}
+}
