@@ -7,16 +7,18 @@ Usage on Kaggle:
      NEVER paste tokens in cells (G8).
   4. Session limit is 12h / 30h weekly — the pipeline is checkpoint-resumable (G10).
 """
-# %% [cell 1] clone the repo (private: token from Kaggle Secrets)
+# %% [cell 1] clone the repo (public since 2026-10-23; secrets pattern kept for when it goes private again)
 import os
 import shlex
 import subprocess
 
-from kaggle_secrets import UserSecretsClient
-
-tok = UserSecretsClient().get_secret("GITHUB_TOKEN")
-clean = shlex.quote(tok)
-subprocess.run(["bash", "-lc", f"git clone https://{clean}@github.com/leekooya20/pino-bio-mvp.git /kaggle/pino-bio-mvp"], check=True)
+try:
+    from kaggle_secrets import UserSecretsClient
+    tok = UserSecretsClient().get_secret("GITHUB_TOKEN")
+except Exception:
+    tok = None
+prefix = f"https://{shlex.quote(tok)}@github.com/" if tok else "https://github.com/"
+subprocess.run(["bash", "-lc", f"git clone --depth 1 {prefix}leekooya20/pino-bio-mvp.git /kaggle/pino-bio-mvp"], check=True)
 os.chdir("/kaggle/pino-bio-mvp")
 
 # %% [cell 2] deps (rdkit via pip; keep torch as Kaggle preinstalled)
