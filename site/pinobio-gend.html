@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PinoAI-GenD — generate · design · optimize</title>
+<meta name="description" content="The generative companion to PinoAI-ProtPH. Where the analysis model is forbidden by construction, this tier does it: novel molecules, novel sequences, binder design, target-driven optimization.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Hanken+Grotesk:wght@400;500;700&family=Spline+Sans+Mono:wght@500&display=swap">
+<style>
+  /* Same agri-molecular identity as PinoAI-ProtPH (pinoai-protph.html, sibling page),
+     with the accent flipped: analysis = field-green truth, generative = rice-gold motion. */
+  :root{
+    --paper:#f6f4ec; --ink:#1b241f; --muted:#5c6b5f; --line:#dcd8c8;
+    --field:#1f3d32; --field-2:#2c5345; --gold:#c08a2d; --gold-soft:#e9d6a8;
+    --card:#ffffff; --good:#2f7d5b; --stop:#a6472f;
+    --display:"Fraunces",Georgia,serif; --body:"Hanken Grotesk",system-ui,sans-serif; --mono:"Spline Sans Mono",ui-monospace,monospace;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --paper:#12170f; --ink:#ece9db; --muted:#9aa892; --line:#2b3326;
+    --field:#bfe3c9; --field-2:#8fcfa8; --gold:#e3b765; --gold-soft:#3a3016;
+    --card:#1a2015; --good:#6fc79a; --stop:#e08a6f; color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#12170f; --ink:#ece9db; --muted:#9aa892; --line:#2b3326;
+    --field:#bfe3c9; --field-2:#8fcfa8; --gold:#e3b765; --gold-soft:#3a3016;
+    --card:#1a2015; --good:#6fc79a; --stop:#e08a6f; color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  img{max-width:100%}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+  .wrap{max-width:860px;margin:0 auto;padding-inline:20px}
+  h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  p{margin:.5em 0}
+  a{color:var(--field-2)}
+  .lede{font-size:1.12rem;color:var(--muted)}
+  .hero{padding-block:56px 40px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(2.6rem,8vw,4.6rem);font-weight:900;letter-spacing:-.02em}
+  .hero .sub{font-size:clamp(1.05rem,2.6vw,1.3rem);max-width:60ch;margin-top:14px}
+  .tagrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .pill{font-family:var(--mono);font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);
+    background:var(--card);color:var(--muted)}
+  .pill.on{border-color:transparent;background:var(--gold);color:#1b241f}
+  section{padding-block:40px;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:600}
+  .kicker{margin-bottom:18px}
+  .flow{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .step{flex:1 1 140px;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .step .n{font-family:var(--mono);font-size:11px;color:var(--gold)}
+  .step b{display:block;font-family:var(--display);font-size:1.05rem;margin-top:3px}
+  .step span{font-size:.86rem;color:var(--muted)}
+  .step.us{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  .box{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--card)}
+  .box h3{font-size:1.05rem;display:flex;align-items:center;gap:8px}
+  .box ul{margin:10px 0 0;padding-left:18px}.box li{margin:5px 0;font-size:.94rem}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dot.g{background:var(--good)}.dot.s{background:var(--stop)}
+  .stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+  .stat{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat b{display:block;font-family:var(--display);font-size:1.7rem;font-weight:900;color:var(--gold);
+    font-variant-numeric:tabular-nums}
+  .stat span{font-size:.82rem;color:var(--muted)}
+  .mapping{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:7px}
+  .mapping li{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:11px 14px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;font-size:.94rem}
+  .mapping .k{font-family:var(--mono);font-size:12px;color:var(--gold);white-space:nowrap}
+  .note{font-size:.84rem;color:var(--muted);font-style:italic;margin-top:14px}
+  .banner{display:inline-flex;gap:8px;align-items:center;font-family:var(--mono);font-size:12px;
+    background:var(--gold-soft);color:var(--ink);padding:7px 12px;border-radius:999px;margin-top:20px}
+  footer{padding-block:34px 56px;color:var(--muted);font-size:.9rem}
+  footer b{color:var(--ink);font-weight:500}
+  @media (max-width:560px){.two{grid-template-columns:1fr}
+    .mapping li{grid-template-columns:1fr}.mapping .k{text-align:left}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Kooya PH AI Research · Demeter — generative tier</div>
+    <h1>PinoAI-GenD</h1>
+    <p class="sub">The companion of <b>PinoAI-ProtPH</b>. Where the analysis model is design-capability-free <em>by construction</em>, this tier does exactly that: generates, designs and optimizes — molecule graphs, protein sequences and binder backbones — for Philippine agriculture.</p>
+    <div class="tagrow">
+      <span class="pill on">Generative tier</span>
+      <span class="pill">MoFlow 30M replica</span>
+      <span class="pill">ProtGPT2-small replica</span>
+      <span class="pill">RFD4-Proteina (served, BSD-3)</span>
+      <span class="pill">Prescribed by governance</span>
+    </div>
+    <div class="banner"><span class="dot g"></span> First training run under way · no design result is public until measured (G7)</div>
+  </header>
+
+  <section>
+    <div class="eyebrow kicker">Why we exist</div>
+    <h2>ProtPH is forbidden to design. Somebody has to.</h2>
+    <p class="lede">PinoAI-ProtPH's release check proves it cannot generate, design or optimize — those capabilities are <em>absent from its weights and code</em>. This tier carries that half of the mission: it creates the new candidates that the analysis tier then screens crops-side. One program, two models, a loop.</p>
+    <div class="flow">
+      <div class="step us"><span class="n">01 · ours</span><b>Generate</b><span>Molecules + protein sequences, validity-gated</span></div>
+      <div class="step"><span class="n">02 · ProtPH</span><b>Screen</b><span>Embed · allergen/food-safety · crop-proteome check</span></div>
+      <div class="step us"><span class="n">03 · ours</span><b>Optimize</b><span>Constrained optimization toward target descriptors</span></div>
+      <div class="step"><span class="n">04 · both</span><b>Validate</b><span>AF-class refold + novelty gates (honest ladder)</span></div>
+      <div class="step"><span class="n">05 · ship</span><b>Report</b><span>Every number measured, never claimed from elsewhere</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow kicker">What it can and cannot do</div>
+    <h2>Generative, by construction</h2>
+    <div class="two">
+      <div class="box">
+        <h3><span class="dot g"></span> It can</h3>
+        <ul>
+          <li>Generate novel molecular graphs (validity-checked, MoFlow replica @ 30M)</li>
+          <li>Generate novel protein sequences (ProtGPT2-small replica, ppl + pLDDT gated)</li>
+          <li>Design scaffolded binders / active-site backbones (served RFD4-Proteina)</li>
+          <li>Optimize molecules toward target properties, incl. crop-relevant descriptors</li>
+          <li>Inverse-fold and structure-guided redesign through the served design tool</li>
+          <li>Run the generate → screen → optimize loop as jobs (SciACA /v1)</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3><span class="dot s"></span> It cannot</h3>
+        <ul>
+          <li>Predict function or allergen risk of existing proteins (ProtPH's heads)</li>
+          <li>Embed, compare or cluster existing proteomes (ProtPH's toolset)</li>
+          <li>Author the crop benchmark or the crop corpus (ProtPH's pre-registration)</li>
+          <li>Claim wet-lab performance — it has none, by definition</li>
+          <li>Blend its numbers with served models' numbers — theirs stay cited (G7)</li>
+        </ul>
+        <p class="note">Mirroring their construction guarantee: our recipes train only generative models; scoring heads and corpora authorship are absent from this tier's code, not switched off.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow kicker">The handshake</div>
+    <h2>Two models, one ecosystem</h2>
+    <ul class="mapping">
+      <li><span>ProtPH grades the crops</span><span class="k">⇄</span><span>GenD invents what grows better</span></li>
+      <li><span>ProtPH owns the crop corpus &amp; benchmark</span><span class="k">⇄</span><span>GenD owns generators &amp; design tools</span></li>
+      <li><span>ProtPH: ESM-2 family, 14 PH crops, analysis</span><span class="k">⇄</span><span>GenD: MoFlow / ProtGPT2 / RFD4, design</span></li>
+      <li><span>Governance 565d09 forbids ProtPH to design</span><span class="k">⇄</span><span>This tier exists to design</span></li>
+    </ul>
+    <p class="note">The same 14 Philippine crops (rice benchmark + peanut, wheat, maize, potato, soybean, coffee, cassava, banana, cacao, tomato, mung bean, pineapple, coconut) meet this tier crop-first: rice is the first fine-tune arm here, exactly as it is the benchmark star there.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow kicker">State of the replicas</div>
+    <h2>Measured status, only</h2>
+    <div class="stats">
+      <div class="stat"><b>29,049,444</b><span>MoFlow params — measured at preflight, ≤ 30M budget</span></div>
+      <div class="stat"><b>249,455</b><span>zinc250k rows — verified, G7-exact</span></div>
+      <div class="stat"><b>10</b><span>documented modifications (M-MOFLOW-1..10)</span></div>
+      <div class="stat"><b>0</b><span>claimed design results so far — by G7, none are public</span></div>
+    </div>
+    <p class="note">Every number above is measured in our pipeline (seed 20261023, config hash recorded). ProtGPT2-small and the RFD4 serving layer follow; the PPI benchmark gates any public design-capability claim.</p>
+  </section>
+
+  <footer class="wrap" style="padding-inline:0">
+    <p><b>PinoAI-GenD</b> — Philippine Foundation Model Program · Demeter (generative part). Companion artifact for <b>PinoAI-ProtPH</b> (analysis).</p>
+    <p>Byline <b>Stan Lee V. Natividad · Kooya PH AI Research</b>. Replica fidelity governed by G11 (read the recipe, modify documented, ledger everything). This page shows running state and registration; results appear only when measured.</p>
+  </footer>
+</div>
+</body>
+</html>
