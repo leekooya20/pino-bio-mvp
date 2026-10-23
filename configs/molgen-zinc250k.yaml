@@ -1,0 +1,53 @@
+# configs/molgen-zinc250k.yaml
+# MoFlow from-scratch, MVP phase 1 (this repo, PinoBio MVP-4).
+# REFERENCE recipe: Katala docs/08-generative-recipes.md §2 — official zinc250k config
+# from calvin-zcx/moflow (verified 2026-10-23; MIT). G11 satisfied: recipe + README +
+# full train/generate process read and recorded before this file existed.
+#
+# Keys marked  # [REF]  are verbatim official values.
+# Keys marked  # [M-###] are OUR documented modifications (M-MOFLOW-1..4), never silent.
+
+run:
+  name: moflow30m-zinc250k-r1
+  seed: 20261023            # G10
+  notes: "first from-scratch replication run; expect reconstruction==100% on fixture"
+
+data:
+  name: zinc250k            # [REF]
+  manifest: data/manifests/moses-zinc250k.jsonl   # G1: entry moses-zinc250k in configs/licenses.yaml (MIT / ZINC free)
+  version_pin: "MOSES @ molecularsets/moses master; record SHA in third_party/PINNED.json at fetch (G10)"
+
+model:
+  b_n_flow: 5               # [M-MOFLOW-1] REF: 10 (scale-down for 30M budget)
+  b_hidden_ch: [256, 256]   # [M-MOFLOW-1] REF: [512, 512]
+  b_conv_lu: 2              # [REF]
+  a_n_flow: 19              # [M-MOFLOW-1] REF: 38
+  a_hidden_gnn: 128         # [M-MOFLOW-1] REF: 256
+  a_hidden_lin: [256, 64]   # [M-MOFLOW-1] REF: [512, 64]
+  mask_row_size_list: [1]   # [REF]
+  mask_row_stride_list: [1] # [REF]
+  noise_scale: 0.6          # [REF]
+  param_budget_m: 30        # [M-MOFLOW-1] hard fail if counted params exceed this
+
+train:
+  batch_size: 256           # [REF]
+  max_epochs: 200           # [REF]
+  amp: true                 # [M-MOFLOW-2] fp16 autocast for T4 16GB
+  grad_accum: 1
+  early_eval_every_epochs: 5
+  device: ""                # empty = auto (cuda if available)
+
+eval:
+  correct_validity_reported_both: true   # [M-MOFLOW-4] log WITH and WITHOUT correction, always
+  sample_n: 10000
+  temperature: 0.85         # [REF] generate.py default used for reference numbers
+  n_experiments: 5          # [REF]
+
+serve:
+  task_map:
+    - sciaca_task: generate-molecule   # SciACA contract (Katala specs §10.2)
+    - sciaca_task: explore-chemistry
+  outputs_schema: "molecules:[{smiles,qed,logp,sim}] | truncated"
+  condition_head:
+    enabled: true            # [M-MOFLOW-3] latent->property MLP extended with PinoBio agro head
+    heads: [qed, plogp, piloc-hydrophobic]   # piloc-hydrophobic = PH-agri descriptor head (RDKit)

@@ -1,0 +1,362 @@
+# configs/licenses.yaml
+# GUARDRAIL G1: no dataset and no teacher enters training without an entry here.
+# Verify every entry at time of use. Licenses change (e.g., MiniMax M2.7 -> NonCommercial).
+
+meta:
+  last_updated: "2026-10-19"
+  owner: "TBD"
+  policy: "Reject any non-commercial dataset or teacher. Record basis. Re-audit quarterly."
+
+datasets:
+  - id: pmc-oa-subset
+    domain: bio
+    license: "CC-BY-4.0 (subset varies)"
+    retrieved_at: "2026-10-19"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: false
+    basis: "PMC Open Access Subset; per-article license must be checked"
+  - id: biorxiv-medrxiv
+    domain: bio
+    license: "CC (varies per preprint)"
+    retrieved_at: "2026-10-19"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    contains_pii: false
+    basis: "Preprint servers; many CC-BY, some CC-BY-NC — filter"
+  - id: protocols-io
+    domain: bio
+    license: "Mixed (CC-BY / CC-BY-NC / all-rights)"
+    retrieved_at: "2026-10-19"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    contains_pii: false
+    basis: "Filter to permissive only"
+  - id: ph-herdin
+    domain: bio
+    license: "Open (verify per record)"
+    retrieved_at: "TBD"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    contains_pii: "possible"
+    basis: "Philippine health research portal; health data requires de-id audit"
+  - id: irri-cgspace
+    domain: bio
+    license: "Mixed"
+    retrieved_at: "TBD"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    contains_pii: false
+    basis: "IRRI datasets on CGSpace; check per dataset"
+  - id: ph-government-foi
+    domain: general
+    license: "Public (per FOI terms)"
+    retrieved_at: "TBD"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    contains_pii: "possible"
+    basis: "FOI portal datasets; scrub PII"
+  - id: stackoverflow
+    domain: coding
+    license: "CC-BY-SA-4.0"
+    retrieved_at: "TBD"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: "possible"
+    basis: "Attribution/share-alike obligations for redistribution of text"
+  - id: public-github-permissive
+    domain: coding
+    license: "MIT / Apache-2.0 / BSD only"
+    retrieved_at: "TBD"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: "possible"
+    basis: "Filter strictly by detected license; exclude copyleft and no-license repos"
+  - id: moses-zinc250k
+    domain: bio
+    license: "MIT (benchmark repo) / ZINC15 data free-for-everyone"
+    retrieved_at: "2026-10-23"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: false
+    basis: "github.com/molecularsets/moses verified MIT 2026-10-23; MOSES 250k subset of ZINC15 (ZINC is free for everyone); molecules are facts — no PII, no copyright on structures"
+  - id: uniref50
+    domain: bio
+    license: "UniProt License (free, unrestricted use)"
+    retrieved_at: "2026-10-23"
+    commercial_ok: true
+    derivative_ok: true
+    contains_pii: false
+    basis: "UniProt consortium license permits open use; training data for ProtGPT2 recipe replication; re-verify snapshot license at download time"
+
+teachers:
+  - id: deepseek-v4-pro
+    domain: coding
+    license: "MIT"
+    date_checked: "2026-10-19"
+    outputs_trainable: true
+    commercial_ok: true
+    hosted_by_us: true
+    notes: "Primary coding teacher; verify at use"
+  - id: deepseek-v4-flash
+    domain: coding
+    license: "MIT"
+    date_checked: "2026-10-19"
+    outputs_trainable: true
+    commercial_ok: true
+    hosted_by_us: true
+    notes: "High-volume generation"
+  - id: glm-5.2
+    domain: general
+    license: "MIT"
+    date_checked: "2026-10-19"
+    outputs_trainable: true
+    commercial_ok: true
+    hosted_by_us: true
+    notes: "Secondary/coding + reasoning"
+  - id: qwen3
+    domain: general
+    license: "Apache-2.0"
+    date_checked: "2026-10-19"
+    outputs_trainable: true
+    commercial_ok: true
+    hosted_by_us: true
+    notes: "Multilingual behavior; same-family student option"
+  - id: sea-lion-v4
+    domain: regional
+    license: "Verify (Open, AI Singapore)"
+    date_checked: "2026-10-19"
+    outputs_trainable: "TBD"
+    commercial_ok: "TBD"
+    hosted_by_us: true
+    notes: "Strongest open model for Filipino; behavior/format teacher ONLY, not knowledge"
+  - id: kimi-k3
+    domain: general
+    license: "VERIFY"
+    date_checked: "2026-10-19"
+    outputs_trainable: "TBD"
+    commercial_ok: "TBD"
+    hosted_by_us: true
+    notes: "Potentially strongest open-weight; license must be confirmed before use"
+  - id: minimax-m2.7
+    domain: general
+    license: "NonCommercial"
+    date_checked: "2026-10-19"
+    outputs_trainable: false
+    commercial_ok: false
+    action: EXCLUDE
+    notes: "Switched from MIT to non-commercial. Do not use."
+
+# Bio specialist models — the understanding/embedding tier (docs/04-bio.md §4.1).
+# These are TOOLS the orchestrator calls; they are deployed locally and LoRA-adapted,
+# never merged into our base weights. Guardrail G1 applies to every entry.
+bio_tools:
+  - id: esm2
+    function: "core protein embeddings + property/variant prediction"
+    role: core
+    license: "MIT"
+    date_checked: "2026-10-23"
+    source: "https://github.com/facebookresearch/esm · HF facebook/esm2_*"
+    sizes: "8M-650M (15B optional)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Primary embedding tool (esm.embed); MIT verified at time of entry — re-verify at use"
+
+  - id: amplify
+    function: "alternative protein embeddings (control/cross-check)"
+    role: control
+    license: "MIT"
+    date_checked: "2026-10-23"
+    source: "HF chandar-lab/AMPLIFY_120M / AMPLIFY_350M"
+    sizes: "120M/350M"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Independent embedding model used to cross-check ESM-2 outputs; AGREE metric in verifier"
+
+  - id: esmfold
+    function: "3D structure prediction from single sequence"
+    role: structure
+    license: "MIT"
+    date_checked: "2026-10-23"
+    source: "facebookresearch/esm · HF facebook/esmfold_v1"
+    sizes: "3B (with folding head)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Fast folding for screening; slower/higher-accuracy alternatives below"
+
+  - id: boltz2
+    function: "3D structure prediction (complexes + co-folding)"
+    role: structure
+    license: "Apache-2.0 (code) / verify weights terms"
+    date_checked: "2026-10-23"
+    source: "https://github.com/jwohlwend/boltz"
+    sizes: "Boltz-2 (32B NIM optional)"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: true
+    notes: "Code permissive; confirm weight/distribution terms before product use"
+
+  - id: chai1
+    function: "3D structure prediction (complexes + immunogen focus)"
+    role: structure
+    license: "Apache-2.0 (code) / verify weights terms"
+    date_checked: "2026-10-23"
+    source: "https://github.com/chaidiscovery/chai-lab"
+    sizes: "Chai-1 (monomer + complex)"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: true
+    notes: "Weights historically carried their own community terms — audit before license-critical use"
+
+  - id: geneformer
+    function: "gene-expression representation"
+    role: later
+    phase: "P2"
+    license: "Apache-2.0"
+    date_checked: "2026-10-23"
+    source: "HF ctheodoris/Geneformer (gene-lab mirror)"
+    sizes: "10M-316M"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Deferred: not in MVP scope"
+
+  - id: codonfm
+    function: "codon-level DNA representation"
+    role: later
+    phase: "P2"
+    license: "NVIDIA Open Model License"
+    date_checked: "2026-10-23"
+    source: "HF NVIDIA/CodonFM"
+    sizes: "80M-1B"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "NVIDIA license permits commercial use with attribution; re-verify version at use"
+
+  - id: plantcaduceus
+    function: "plant DNA/RNA analysis (agri)"
+    role: agri
+    phase: "P1"
+    license: "Apache-2.0"
+    date_checked: "2026-10-23"
+    source: "HF (PeiLab) PlantCaduceus_*"
+    sizes: "32M-1.5B"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Agri line (P1); pairs with PlantRNA-FM and GPN"
+
+  - id: gpn
+    function: "plant genomic representation (variant/regulatory)"
+    role: agri
+    phase: "P1"
+    license: "Apache-2.0 / MIT (verify per checkpoint)"
+    date_checked: "2026-10-23"
+    source: "https://github.com/songlab-cal/GPN"
+    sizes: "model-specific"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: true
+    notes: "Multiple GPN checkpoints exist; license may differ per repo — audit each"
+
+  - id: plantrna-fm
+    function: "plRNA-RNA language model (agri transcript analysis)"
+    role: agri
+    phase: "P1"
+    license: "Apache-2.0 / MIT (verify)"
+    date_checked: "2026-10-23"
+    source: "HF (search: PlantRNA-FM)"
+    sizes: "model-specific"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: true
+    notes: "Newer model; confirm license + HF org before wiring into tools"
+
+  # --- Generative / design tier (bio design stack, verified via HF API 2026-10-23) ---
+  - id: rfd4-proteina
+    function: "flow-matching protein backbone design (inference + reward-guided search)"
+    role: generation_core
+    license: "BSD-3-Clause"
+    date_checked: "2026-10-23"
+    source: "HF nvidia/RFD4-Proteina (0.4B / 435M params) + GitHub code + design benchmarks"
+    sizes: "0.4B"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "Flagship design model; bundles AF2/OpenFold3 refolding runtimes for designability eval — candidate RLVR reward signal, not just a tool. Permissive license. Supersedes NV-Proteina-400M-v1"
+
+  - id: proteina-complexa
+    function: "protein-complex design (binder / ligand-target)"
+    role: generation
+    license: "NVIDIA Open Model License"
+    date_checked: "2026-10-23"
+    source: "HF nvidia/NV-Proteina-Complexa-{Protein-Target,Ligand-Target,AME}-160M-v1"
+    sizes: "160M each"
+    commercial_ok: true
+    derivative_ok: "fine-tune yes; verify redistribution + competing-model clause in NOML at use"
+    hosted_by_us: true
+    notes: "3 checkpoints (Protein-Target 952 dl, Ligand-Target, AME). NOT non-commercial, but NOML has clauses beyond BSD — confirm clause list before product shipping"
+
+  - id: la-proteina
+    function: "all-atom protein design (unconditional / motif-scaffold)"
+    role: generation
+    license: "NVIDIA Open Model License"
+    date_checked: "2026-10-23"
+    source: "HF nvidia/NV-La-Proteina-{Ucond,Motif}-v1 (arxiv 2507.09466)"
+    sizes: "~16 GB ckpt store total"
+    commercial_ok: true
+    derivative_ok: "fine-tune yes; verify redistribution + competing-model clause in NOML at use"
+    hosted_by_us: true
+    notes: "2 checkpoints (Ucond 342 dl, Motif). Complements RFD4-Proteina (backbones) with all-atom output"
+
+  - id: proteina-400m-legacy
+    function: "legacy Proteina v1.4/v1.8 400M backbones"
+    role: superseded
+    license: "NVIDIA Source Code License v1 (nsclv1) — different from NOML"
+    date_checked: "2026-10-23"
+    source: "HF nvidia/NV-Proteina-400M-v1"
+    sizes: "400M"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: true
+    action: PREFER-RFD4
+    notes: "NSCL v1 differs from both BSD and NOML — audit separately if ever needed. RFD4-Proteina is the replacement; do not onboard this without cause"
+
+  - id: protgpt2
+    function: "autoregressive protein sequence generation — MVP generate role (from-scratch replication target)"
+    role: generation_core
+    license: "Apache-2.0"
+    date_checked: "2026-10-23"
+    source: "HF nferruz/ProtGPT2 (verified Apache-2.0) · recipe: UniRef50 corpus + custom BPE tokenizer, GPT2LMHeadModel"
+    sizes: "~800M reference; replication target ≤ 100M"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "MVP generate (sequence). Plan: replicate recipe from scratch at smaller size (Kaggle T4); reference weights usable meanwhile. Trains on uniref50 (see datasets)"
+
+  - id: moflow
+    function: "invertible flow molecular-graph generation — MVP generate role (from-scratch replication target)"
+    role: generation_core
+    license: "MIT (official code: github.com/calvin-zcx/moflow, verified 2026-10-23)"
+    date_checked: "2026-10-23"
+    source: "github.com/calvin-zcx/moflow · data: MOSES ZINC250k (molecularsets/moses, MIT)"
+    sizes: "~13-30M target"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: true
+    notes: "MVP generate (molecule). From-scratch 30M on Kaggle T4x2; completely own checkpoint + recipe. Trains on moses-zinc250k"
+
+rejected:
+  - id: closed-api-models
+    reason: "G2 — no closed-API distillation (ToS + detection + legal)"
+    examples: ["GPT", "Claude", "Gemini"]
+
+export_review:
+  status: pending
+  counsel: ""
+  date: null
+  notes: "Review before any international distribution of model weights/derivatives."

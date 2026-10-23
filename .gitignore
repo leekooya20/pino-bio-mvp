@@ -1,0 +1,22 @@
+# Local
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
+# Runs
+artifacts/*
+!artifacts/run_meta.json
+runs/
+
+# Heavy data + reference repos (pinned by scripts/, never committed)
+data/raw/
+data/interim/
+data/processed/
+third_party/*/
+third_party/PINNED.json
+release/
+
+# Secrets
+.env
+*.key

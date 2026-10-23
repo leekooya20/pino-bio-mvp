@@ -1,0 +1,18 @@
+# Pin exact versions before the first real run (Katala G-rule: reproducibility is a guardrail).
+# Reference envs: moflow README used torch 1.6/rtdkit 2020 — we target current stable on Kaggle.
+torch>=2.4
+rdkit>=2024.3
+pandas
+numpy
+scipy
+networkx
+orderedset
+tabulate
+seaborn
+cairosvg
+tqdm
+pyyaml
+structlog
+pytest
+fastapi
+uvicorn
