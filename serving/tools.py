@@ -57,8 +57,24 @@ def seq_generate(inputs: dict) -> dict:
 
 
 # --- design.backbone  (task: design-binder) â†’ RFD4-Proteina (served, BSD-3) ---
+def _design_trajectory(passthrough: dict, measured: bool) -> list[dict]:
+    """Section 7 Unified-Latent-Reasoning stages. Honest: until a backend is live every
+    stage is `pending` (no fabricated per-stage numbers). reasoning_depth is ALLOCATED
+    across stages (adaptive: the structural core gets more), echoing the workbench's
+    per-stage depth; search_criteria ride along as the reward gate."""
+    try:
+        depth = int(passthrough.get("reasoning_depth") or 1)
+    except (TypeError, ValueError):
+        depth = 1
+    alloc = {"latent": depth, "topology": depth, "sequence_structure": depth + 1,
+             "contacts": depth, "refold": depth}
+    st = "done" if measured else "pending"
+    return [{"stage": s, "reasoning_depth": alloc[s], "status": st, "measured": measured}
+            for s in ("latent", "topology", "sequence_structure", "contacts", "refold")]
+
+
 def design_backbone(inputs: dict) -> dict:
-    # Â§7 passthrough: reasoning_depth + search_criteria travel into the trajectory.
+    # Section 7 passthrough: reasoning_depth + search_criteria travel into the trajectory.
     passthrough = {
         "reasoning_depth": inputs.get("reasoning_depth"),
         "search_criteria": inputs.get("search_criteria"),
@@ -66,15 +82,19 @@ def design_backbone(inputs: dict) -> dict:
     }
     endpoint = os.environ.get("PROTEINA_ENDPOINT", "")
     if not endpoint:
-        return _pending(
+        r = _pending(
             "RFD4-Proteina served backend not configured (needs the pinned py3.12 "
             "container; Kaggle runtime is py3.13). Set PROTEINA_ENDPOINT to go live. "
             "Backbones are not fabricated (G7).",
             model="rfd4-proteina", served=True, passthrough=passthrough,
         )
+        r["trajectory"] = _design_trajectory(passthrough, measured=False)
+        return r
     from importlib import import_module
     client = import_module("serving.runtimes.proteina_runtime")
-    return client.backbones(endpoint=endpoint, inputs=inputs, passthrough=passthrough)
+    out = client.backbones(endpoint=endpoint, inputs=inputs, passthrough=passthrough)
+    out["trajectory"] = _design_trajectory(passthrough, measured=bool(out.get("measured")))
+    return out
 
 
 # --- esm.embed scorer  (task: optimize-property) â†’ ESM-2 (served) ---

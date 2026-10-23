@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PinoBio — Unified Latent Reasoning workbench</title>
+<!--
+  §7 trajectory workbench (benchmarks.md §7). Renders REAL /v1 job trajectories.
+  Honesty (G7): with no live backend, stages show an honest "pending" state — the page
+  never invents per-stage numbers. Set the API base to a running serving/app.py.
+-->
+<style>
+  :root { --bg:#0b0f14; --card:#121922; --ink:#e7eef7; --mut:#8aa0b4; --g:#36d399; --y:#f6c74b; --line:#1f2b38; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:22px 28px; border-bottom:1px solid var(--line); }
+  h1 { margin:0; font-size:20px; } .sub { color:var(--mut); margin-top:4px; }
+  main { display:grid; grid-template-columns:340px 1fr; gap:0; min-height:calc(100vh - 86px); }
+  .panel { padding:22px 24px; } .left { border-right:1px solid var(--line); }
+  label { display:block; font-size:12px; color:var(--mut); margin:14px 0 4px; text-transform:uppercase; letter-spacing:.04em; }
+  input, textarea, select { width:100%; background:var(--card); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:9px 10px; font:inherit; }
+  textarea { min-height:70px; resize:vertical; }
+  .crit { display:flex; align-items:center; gap:8px; margin:6px 0; color:var(--ink); font-size:14px; }
+  .crit input { width:auto; }
+  button { margin-top:16px; width:100%; background:var(--g); color:#06231a; border:0; border-radius:8px; padding:11px; font-weight:700; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--mut); border:1px solid var(--line); margin-top:8px; }
+  .stage { display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--line); border-radius:10px; margin-bottom:10px; background:var(--card); }
+  .num { width:26px; height:26px; border-radius:50%; display:grid; place-items:center; background:#0e1620; border:1px solid var(--line); font-size:12px; }
+  .stage h3 { margin:0; font-size:15px; } .stage .meta { color:var(--mut); font-size:12px; }
+  .depth { margin-left:auto; display:flex; gap:3px; } .pip { width:8px; height:8px; border-radius:50%; background:#24466b; } .pip.on { background:var(--y); }
+  .badge { font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--mut); }
+  .badge.done { color:var(--g); border-color:#1c5a42; } .badge.pending { color:var(--y); border-color:#5a4a1c; }
+  .note { color:var(--mut); font-size:13px; margin-top:14px; border-left:3px solid var(--line); padding-left:12px; }
+  .apirow { display:flex; gap:8px; } .apirow input { flex:1; }
+  code { background:#0e1620; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Unified Latent Reasoning — trajectory workbench</h1>
+  <div class="sub">Describe a design, set per-stage reasoning depth + search criteria, and watch the <b>real</b> /v1 job trajectory. No live backend → honest <span style="color:var(--y)">pending</span> stages (never fabricated numbers · G7).</div>
+</header>
+<main>
+  <section class="panel left">
+    <label>API base</label>
+    <div class="apirow">
+      <input id="api" placeholder="http://localhost:8080" value="http://localhost:8080" />
+      <button class="ghost" style="width:auto;margin:0;padding:9px 12px" onclick="loadModels()">check</button>
+    </div>
+    <div id="apistatus" class="meta" style="margin-top:6px;color:var(--mut)"></div>
+
+    <label>Design intent</label>
+    <textarea id="desc" placeholder="e.g. a compact binder against the target epitope, high interface area"></textarea>
+
+    <label>Target (PDB id / contents, optional)</label>
+    <input id="target" placeholder="e.g. 5O45" />
+
+    <label>Reasoning depth</label>
+    <select id="depth">
+      <option value="1">1 — fast</option>
+      <option value="2" selected>2 — deep (thinking_high)</option>
+      <option value="3">3 — deepest</option>
+    </select>
+
+    <label>Search criteria (reward gate)</label>
+    <div class="crit"><input type="checkbox" id="c_area" checked /> <span>large interface area</span></div>
+    <div class="crit"><input type="checkbox" id="c_hb" /> <span>many interface H-bonds</span></div>
+    <div class="crit"><input type="checkbox" id="c_conf" checked /> <span>high refold interface confidence</span></div>
+
+    <button onclick="runJob()">Run design job</button>
+    <div id="jobmeta" class="note" style="display:none"></div>
+  </section>
+
+  <section class="panel">
+    <div id="stages"><div class="note">Run a job to see its trajectory. Stages: latent → topology → sequence+structure → contacts → refold.</div></div>
+    <div id="result"></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const api = () => $('api').value.replace(/\/$/, '');
+
+async function loadModels() {
+  try {
+    const r = await fetch(api() + '/v1/models');
+    const m = await r.json();
+    $('apistatus').textContent = `live · ${m.length} models`;
+    $('apistatus').style.color = 'var(--g)';
+  } catch {
+    $('apistatus').textContent = 'no live backend — stages will show honest pending';
+    $('apistatus').style.color = 'var(--y)';
+  }
+}
+
+function criteria() {
+  const c = {};
+  if ($('c_area').checked) c.large_interface_area = true;
+  if ($('c_hb').checked) c.many_interface_hbonds = true;
+  if ($('c_conf').checked) c.high_refold_confidence = true;
+  return c;
+}
+
+const STAGE_LABEL = {
+  latent: 'Latent point cloud',
+  topology: 'Global topology',
+  sequence_structure: 'Sequence + structure',
+  contacts: 'Fine-scale contacts',
+  refold: 'Refold (fold ladder)',
+};
+
+function renderTrajectory(traj) {
+  if (!traj || !traj.length) { $('stages').innerHTML = '<div class="note">No trajectory in this job.</div>'; return; }
+  $('stages').innerHTML = traj.map((s, i) => {
+    const pips = [1,2,3].map(n => `<span class="pip ${n <= s.reasoning_depth ? 'on' : ''}"></span>`).join('');
+    return `<div class="stage">
+      <div class="num">${i+1}</div>
+      <div><h3>${STAGE_LABEL[s.stage] || s.stage}</h3>
+        <div class="meta">reasoning depth ${s.reasoning_depth}</div></div>
+      <div class="depth" title="reasoning depth">${pips}</div>
+      <span class="badge ${s.status}">${s.status}</span>
+    </div>`;
+  }).join('');
+}
+
+async function poll(id) {
+  for (let i = 0; i < 60; i++) {
+    const j = await (await fetch(api() + '/v1/jobs/' + id)).json();
+    if (j.status === 'succeeded' || j.status === 'failed') return j;
+    await new Promise(r => setTimeout(r, 400));
+  }
+  return null;
+}
+
+async function runJob() {
+  const body = { task: 'design-binder', inputs: {
+    mode: 'binder',
+    description: $('desc').value,
+    target_pdb: $('target').value || null,
+    reasoning_depth: parseInt($('depth').value, 10),
+    search_criteria: criteria(),
+  }};
+  $('stages').innerHTML = '<div class="note">Submitting…</div>';
+  let created;
+  try {
+    created = await (await fetch(api() + '/v1/jobs', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    })).json();
+  } catch {
+    $('stages').innerHTML = '<div class="note">No live backend reachable. Start <code>serving/app.py</code> and set the API base — the trajectory renders from real jobs only (G7).</div>';
+    return;
+  }
+  const job = await poll(created.id);
+  if (!job) { $('stages').innerHTML = '<div class="note">Job timed out.</div>'; return; }
+  const res = job.result || {};
+  renderTrajectory(res.trajectory);
+  $('jobmeta').style.display = 'block';
+  $('jobmeta').innerHTML = `job <code>${job.id}</code> · ${job.status} · measured: <b>${res.measured}</b>`;
+  $('result').innerHTML = res.measured
+    ? `<div class="note">Backbones returned: ${(res.backbones||[]).length}. Metrics are the served model's, cited not blended (G7).</div>`
+    : `<div class="note">${res.note || 'Awaiting a live design backend — no results fabricated (G7).'}</div>`;
+}
+loadModels();
+</script>
+</body>
+</html>

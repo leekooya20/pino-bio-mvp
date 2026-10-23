@@ -60,6 +60,18 @@ def test_design_binder_passthrough():
     assert res["measured"] is False
 
 
+def test_design_trajectory_stages_honest():
+    j = _run("design-binder", {"mode": "binder", "reasoning_depth": 2})
+    traj = j["result"]["trajectory"]
+    names = [s["stage"] for s in traj]
+    assert names == ["latent", "topology", "sequence_structure", "contacts", "refold"]
+    # adaptive allocation: the structural core gets depth+1
+    core = next(s for s in traj if s["stage"] == "sequence_structure")
+    assert core["reasoning_depth"] == 3
+    # honest: no backend → every stage pending, not fabricated-done
+    assert all(s["status"] == "pending" and s["measured"] is False for s in traj)
+
+
 if __name__ == "__main__":
     test_models_shape()
     test_unknown_task_is_validation_error()
