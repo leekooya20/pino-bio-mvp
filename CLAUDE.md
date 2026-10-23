@@ -4,6 +4,11 @@ Master contract: `Default Project/CLAUDE.md` (G1–G12). Read it first. The subs
 binding inside **pino-bio-mvp**:
 
 - **G12 (communication):** always answer in English, even if the team writes in Taglish.
+- **Agent split (Demeter):** this repo is the GENERATIVE tier (PinoAI-GenD). Coordination
+  with the analysis agent (PinoAI/phfm, design-by-construction-banned) goes through
+  `Default Project/docs/10-agent-handshake.md` — never edit their repo, never touch
+  their ledger/sphere. Capability split is final: we generate/design/optimize; they
+  embed/score/screen.
 
 - **G1** No dataset/script enters a run without a `configs/licenses.yaml` entry (this repo mirrors the master — keep in sync).
 - **G3** No training without the frozen eval harness (fixture: reconstruction == 100% for MoFlow — the reference's own invariant, G11-verified).
