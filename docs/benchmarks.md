@@ -190,4 +190,36 @@ Order of work: (1) serving layer ships `reasoning_depth` + `search_criteria` pas
 (2) job artifacts record per-stage snapshots (for the workbench UI), (3) the PPI benchmark
 (§6) validates capability claims BEFORE any public-facing demo language.
 
+---
+
+## 8. PLANNED (later): AF3-grade refold validation stack — Stan's pick
+
+Source (verbatim link, Stan 2026-10-23): Abramson, J. et al. *Accurate structure prediction
+of biomolecular interactions with AlphaFold 3.* **Nature 630, 493–500 (2024)** —
+DOI 10.1038/s41586-024-07487-w (Fig. 1).
+
+What we adopt from their Fig-1 methodology for OUR eval claims (upgrade of §6 step 3):
+- **Metrics**: pocket-aligned ligand RMSD < 2 Å (ligands/covalent mods); interface LDDT
+  (protein–nucleic-acid); LDDT (monomers); **DockQ > 0.23** (protein–protein & antibody
+  interfaces) — the same thresholds their panels use.
+- **Sampling protocol**: rank by **top-confidence sample out of N model seeds × diffusion
+  samples** (theirs: 5 seeds × 5 diffusion samples; 1,000 seeds for antibody pose ranking) —
+  multi-seed confidence-ranked selection becomes our default for any structure-level claim.
+- **Statistics**: exact binomial 95% CIs / 10,000-sample bootstrap + two-sided Wilcoxon
+  signed-rank comparisons (their choices) — adopted for our A/B arms.
+
+Validator ladder (license-honest):
+
+| Run | Validator | License / access note |
+|---|---|---|
+| Now | ESMFold (MIT) + local AF-class open models | servable; labeled "not-AF3" |
+| Next | **Boltz-2** (already in our Katala tool list, MIT) | AF3-class; our primary refold validator |
+| Cross-check | Chai (Apache-2.0 per Katala catalog) | second opinion, seed-matched |
+| Gold | AlphaFold 3 itself | **not freely servable by us** (Google terms — verify terms at the time; server access is the practical path). Their numbers stay THEIRS; ours cite the ladder above |
+
+If/when real AF3 access exists, we re-run the §6 PPI benchmark under the exact Fig-1
+protocol and relabel claims accordingly. Until then: everything stays honest-labeled as
+"AF-class open validator".
+
+
 
