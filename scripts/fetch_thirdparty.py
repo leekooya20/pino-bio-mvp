@@ -31,6 +31,14 @@ def sh(args: list[str], cwd: Path | None = None) -> str:
     return out.stdout.strip()
 
 
+def find_license(dest: Path) -> Path | None:
+    """Case-insensitive LICENSE* lookup (reference repos use mixed names: moflow='License.md', moses='LICENSE')."""
+    for p in sorted(dest.iterdir()):
+        if p.is_file() and p.name.lower().startswith("license"):
+            return p
+    return None
+
+
 def main() -> int:
     TP.mkdir(exist_ok=True)
     pinned: dict[str, dict] = {}
@@ -40,10 +48,8 @@ def main() -> int:
             print(f"clone {name} ...")
             sh(["git", "clone", "--depth", "1", url, str(dest)])
         sha = sh(["git", "rev-parse", "HEAD"], cwd=dest)
-        license_file = dest / "LICENSE"
-        if not license_file.exists():
-            license_file = dest / "LICENSE.md"
-        if not license_file.exists():
+        license_file = find_license(dest)
+        if not license_file:
             print(f"FAIL: {name} has no LICENSE file — G1/G11: do not proceed", file=sys.stderr)
             return 1
         text = license_file.read_text(encoding="utf-8", errors="ignore")[:2000]
