@@ -1,0 +1,13 @@
+{
+  "id": "leexze/moflow30m-nogpu-test",
+  "title": "moflow30m-nogpu-test",
+  "code_file": "scripts/kaggle_run_moflow.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": false,
+  "enable_gpu": false,
+  "enable_internet": false,
+  "competition_sources": [],
+  "dataset_sources": [],
+  "kernel_sources": []
+}

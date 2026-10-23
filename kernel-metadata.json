@@ -1,6 +1,6 @@
 {
   "id": "leexze/moflow30m-zinc250k-r1",
-  "title": "MoFlow-30M zinc250k r1 (PinoBio MVP-4)",
+  "title": "moflow30m-zinc250k-r1",
   "code_file": "scripts/kaggle_run_moflow.py",
   "language": "python",
   "kernel_type": "script",
