@@ -1,7 +1,9 @@
 # CLAUDE.md — agent rules for this repo (subset + pointers to the master)
 
-Master contract: `Default Project/CLAUDE.md` (G1–G11). Read it first. The subset below is
+Master contract: `Default Project/CLAUDE.md` (G1–G12). Read it first. The subset below is
 binding inside **pino-bio-mvp**:
+
+- **G12 (communication):** always answer in English, even if the team writes in Taglish.
 
 - **G1** No dataset/script enters a run without a `configs/licenses.yaml` entry (this repo mirrors the master — keep in sync).
 - **G3** No training without the frozen eval harness (fixture: reconstruction == 100% for MoFlow — the reference's own invariant, G11-verified).
