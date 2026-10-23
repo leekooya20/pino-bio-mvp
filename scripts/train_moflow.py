@@ -67,16 +67,51 @@ def build_reference_args(cfg: dict) -> list[str]:
     ]
 
 
-def count_reference_params() -> int:
-    """Build the reference model (unchanged math) and count params vs budget."""
-    import torch
-    tp = ROOT / "third_party"
-    pin = tp / "PINNED.json"
-    if not pin.exists():
-        raise SystemExit("third_party not pinned — run scripts/fetch_thirdparty.py first")
-    sys.path.insert(0, str(tp / "moflow"))
-    from fast_jtm import build  # placeholder import; resolved in phase-1 wiring step
-    raise SystemExit("param counter lands with phase-1 wiring: src/train/moflow_model.py")
+DATASET_CONSTANTS = {
+    # Verbatim from reference train_model.py lines 132-135 (zinc250k branch) —
+    # dataset-bound in the reference, therefore dataset-bound here (G11 provenance).
+    "zinc250k": {"b_n_type": 4, "b_n_squeeze": 19, "a_n_node": 38, "a_n_type": 10},
+}
+
+
+def count_reference_params(cfg: dict) -> int:
+    """Build the reference MoFlow model (unchanged math) and count params.
+
+    Imports live in third_party/moflow/mflow/models (verified train_model.py:12-13).
+    We never modify that code — we instantiate with OUR config values (M-MOFLOW-1)
+    and enforce the budget BEFORE spending GPU time.
+    """
+    import torch  # noqa: F401  (heavy dep; only needed for real training runs)
+    tp = ROOT / "third_party" / "moflow"
+    sys.path.insert(0, str(tp))
+    from mflow.models.hyperparams import Hyperparameters  # type: ignore
+    from mflow.models.model import MoFlow  # type: ignore
+
+    m = cfg["model"]
+    d = cfg["data"]["name"]
+    if d not in DATASET_CONSTANTS:
+        raise SystemExit(f"no dataset constants for {d} — add to DATASET_CONSTANTS w/ reference line refs")
+    c = DATASET_CONSTANTS[d]
+    listify = lambda v: v if isinstance(v, list) else [v]  # noqa: E731
+    hp = Hyperparameters(
+        b_n_type=c["b_n_type"], b_n_flow=m["b_n_flow"], b_n_block=1,
+        b_n_squeeze=c["b_n_squeeze"], b_hidden_ch=listify(m["b_hidden_ch"]),
+        b_affine=True, b_conv_lu=m["b_conv_lu"],
+        a_n_node=c["a_n_node"], a_n_type=c["a_n_type"],
+        a_hidden_gnn=listify(m["a_hidden_gnn"]), a_hidden_lin=listify(m["a_hidden_lin"]),
+        a_n_flow=m["a_n_flow"], a_n_block=1,
+        mask_row_size_list=listify(m["mask_row_size_list"]),
+        mask_row_stride_list=listify(m["mask_row_stride_list"]),
+        a_affine=True, learn_dist=True, seed=0, noise_scale=m["noise_scale"],
+    )
+    model = MoFlow(hp)
+    n = sum(p.numel() for p in model.parameters())
+    budget = int(m["param_budget_m"]) * 1_000_000
+    if n > budget:
+        print(f"FAIL param budget: {n:,} > {budget:,} (M-MOFLOW-1) — shrink flows/width", file=sys.stderr)
+        raise SystemExit(1)
+    print(f"[M-MOFLOW-1] counted params: {n:,} <= budget {budget:,} OK")
+    return n
 
 
 def main() -> int:
@@ -113,11 +148,32 @@ def main() -> int:
     (run_dir / "run_meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     ref_args = build_reference_args(cfg)
-    cmd = [sys.executable, "train_model.py"] + ref_args
+    snap_dir = run_dir / "snapshots"
+    ref_args += [
+        "--save_dir", str(snap_dir),                       # centralize snapshots in our run dir
+        "--seed", str(cfg["run"]["seed"]),                 # reference --seed exists (train_model.py:76) — G10
+        "--learning_rate", str(cfg["train"].get("learning_rate", 0.001)),
+        "--save_interval", str(cfg["train"].get("save_interval", 20)),
+    ]
+    latest_snapshot = None
     if args.resume:
-        cmd += ["--restore_file", "model_snapshot_epoch_last"]  # reference snapshot naming
+        snaps = sorted(snap_dir.glob("model_snapshot_epoch_*"))
+        if snaps:
+            latest_snapshot = snaps[-1]
+            ref_args += ["--load_snapshot", str(latest_snapshot)]  # reference arg name (line 36)
+            ref_args += ["--load_params", "1"]
+        else:
+            print("[resume] no snapshot found — starting fresh", file=sys.stderr)
+
+    # M-MOFLOW-1 pre-flight: enforce the 30M budget before any GPU spend
+    # (skipped in dry_run so config review works without torch on the host)
+    n_params = None if args.dry_run else count_reference_params(cfg)
+
+    cmd = [sys.executable, "train_model.py"] + ref_args
     print("[g11] reference CLI (verbatim names, our values):")
     print("  " + " ".join(cmd))
+    if n_params is not None:
+        print(f"[g10] model params: {n_params:,}")
 
     if args.dry_run:
         (run_dir / "planned_cmd.txt").write_text(" ".join(cmd), encoding="utf-8")

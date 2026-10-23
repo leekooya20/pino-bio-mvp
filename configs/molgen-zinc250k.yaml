@@ -32,6 +32,8 @@ model:
 train:
   batch_size: 256           # [REF]
   max_epochs: 200           # [REF]
+  learning_rate: 0.001      # [REF] reference default (-l 0.001, train_model.py:38)
+  save_interval: 20         # [REF]
   amp: true                 # [M-MOFLOW-2] fp16 autocast for T4 16GB
   grad_accum: 1
   early_eval_every_epochs: 5
