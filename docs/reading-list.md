@@ -93,9 +93,16 @@ verbatim-sourced; this file tracks the *reading*, not the numbers).
   novelty gate (P-PTGPT2-3), and the LoRA-finetune recipe path our own weights may use.
   Science paper read = one working session when the scorer lands.
 
-### (Deferred models — AMPLIFY, GPN, PlantCaduceus, Geneformer, CodonFM, Evo 2)
-Reading is gated by actual use. Evo 2 = tool-only per earlier decision; others wait for
-the PinoAI-side A/B results before we commit any read budget.
+### Generative OUT-list models (FLORA excludes → ours, Stan 2026-10-24)
+- **Evo 2** (DNA/genome generation, Apache-2.0/NVIDIA-Open, served) — license verified live;
+  deep docs read gated on actual serving (new DNA-generation modality).
+- **Proteina-Complexa · La-Proteina** (protein design) — registered; **read + license verify
+  BEFORE any dependence** (G11). serve/replicate decision deferred.
+- **Eden** (DNA gen) — identity + license to confirm before any read/use.
+- **AgroNT** (crop DNA) — **LICENSE HOLD** (non-commercial); do not read for commercial use.
+
+### (Deferred analysis-side models — AMPLIFY, GPN, PlantCaduceus, Geneformer, CodonFM)
+Reading gated by actual use; these are FLORA's analysis tools, not our generative scope.
 
 ---
 

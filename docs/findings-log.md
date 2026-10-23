@@ -74,6 +74,22 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0018 | 2026-10-24 | Authoritative scope = FLORA's OUT list (incl. new DNA-gen modality)
+
+- **Observation (Stan, FLORA policy screenshot):** FLORA's "OUT — excluded by policy"
+  list IS the generate/design set, and it is explicitly OURS to execute. Full list:
+  Evo 2 + Eden (DNA gen); RFD4-Proteina + Proteina-Complexa + La-Proteina (protein
+  design); ProtGPT2 (protein gen); MegaMolBART + MoFlow (chem gen); AgroNT (crop DNA, NC).
+- **New modality:** **DNA generation (Evo 2, Eden)** enters GenD scope — beyond molecules
+  + proteins. Evo 2 license verified live (Apache-2.0 / NVIDIA Open, commercial OK), served.
+- **Honest license flags:** Proteina-Complexa / La-Proteina / Eden registered in scope but
+  UNUSABLE until license read live (G1/G11). **AgroNT = LICENSE HOLD** (non-commercial —
+  not a safety block; never shipped commercially unless relicensed).
+- **Boundary restated:** everything FLORA USES (ESM-2, AMPLIFY, ESMFold/Boltz-2/Chai,
+  Plant* trio, CodonFM) is their analysis side; we only borrow ESM-2 (score) + fold models
+  (§8 validate). All GENERATION = ours. Registered: licenses, roster, reading-list.
+- **Scope-discipline note:** registered-only — no new builds; Molek stays the active work.
+
 ## F-0017 | 2026-10-24 | Plan-roster mapped — MegaMolBART + DiffDock registered to GenD (Stan)
 
 - **Observation (Stan's plan roster):** generative chemistry = MegaMolBART + MoFlow;

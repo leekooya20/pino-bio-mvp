@@ -52,6 +52,31 @@ with ours (G7).
 
 ---
 
+## Our scope = FLORA's "OUT" list (the authoritative boundary, Stan 2026-10-24)
+
+FLORA's policy EXCLUDES every generate/design model (565d09). That exclusion list is
+**exactly our mandate** — we execute all of it. Full enumeration with honest handling:
+
+| Model | Modality | How we carry it | License |
+|---|---|---|---|
+| **MoFlow** → Molek | molecule gen | **from scratch (ours)** | MIT |
+| **MegaMolBART** | molecule gen | served alt | Apache-2.0 |
+| **ProtGPT2** → Seqgen | protein gen | **from scratch (ours)** | Apache-2.0 |
+| **RFD4-Proteina** | protein design | served | BSD-3 |
+| **Proteina-Complexa** | protein-complex design | registered; license TBD | verify at use |
+| **La-Proteina** | protein design (latent) | registered; license TBD | verify at use |
+| **Evo 2** | **DNA/genome gen** (new modality) | served | Apache-2.0 / NVIDIA Open |
+| **Eden** | DNA gen | registered; identity+license TBD | verify at use |
+| **AgroNT** | crop DNA | **LICENSE HOLD** (non-commercial) | NC — research-only |
+| **DiffDock** | docking/pose (optimize loop) | served | MIT / NVIDIA Open |
+
+New modality note: **DNA generation (Evo 2, Eden)** enters our scope here — beyond
+molecules + proteins. Served-first; nothing from-scratch at genome scale.
+
+Honest flags: Proteina-Complexa / La-Proteina / Eden are **registered in scope but not
+usable until their license is read live (G1/G11)**. AgroNT is **held** — crop-relevant
+but NC-licensed, so never shipped in a commercial path unless relicensed.
+
 ## One-line summary
 
 - **From scratch (our weights):** Molek-30M, Seqgen-small.

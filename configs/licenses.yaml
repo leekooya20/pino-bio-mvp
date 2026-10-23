@@ -423,6 +423,67 @@ bio_tools:
     hosted_by_us: false
     notes: "SERVED; we dock OUR generated molecules against targets (pose + confidence). Docking sits on the molecule-design side (FLORA is protein-analysis-only). Poses/scores cited as DiffDock's, never blended (G7)."
 
+  - id: evo2
+    function: "DNA/RNA/protein GENERATION foundation model (genome-scale design) — NEW modality (DNA gen); SERVED"
+    role: generation_core
+    phase: "P3 (FLORA OUT-list = our scope, Stan 2026-10-24)"
+    license: "Apache-2.0 / NVIDIA Open Model License (verified live 2026-10-24: build.nvidia.com/arc/evo2-40b; github.com/arcinstitute/evo2) — commercial OK"
+    date_checked: "2026-10-24"
+    source: "Arc Institute (github.com/arcinstitute/evo2) · NVIDIA NIM nvcr.io/nim/arc/evo2-40b"
+    sizes: "7B / 40B (StripedHyena); 1Mb context"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "SERVED (40B not from-scratch on our compute). DNA generation = new generative modality for GenD. Its sequences/scores cited, never blended (G7)."
+
+  - id: la-proteina
+    function: "protein design/generation (latent diffusion) — FLORA OUT-list -> ours"
+    role: generation_core
+    phase: "P3"
+    license: "TBD — verify live at use (NVIDIA research family); do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "NVIDIA / Proteina research family"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope (generative); license + serve/replicate decision deferred. No use before live license verification."
+
+  - id: proteina-complexa
+    function: "protein-complex design/generation — FLORA OUT-list -> ours"
+    role: generation_core
+    phase: "P3"
+    license: "TBD — verify live at use; do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "Proteina research family (complex variant)"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope; license pending live verification before any use."
+
+  - id: eden
+    function: "DNA generation — FLORA OUT-list -> ours"
+    role: generation_core
+    phase: "P3"
+    license: "TBD — verify live at use; do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "TBD (DNA generation; identity to confirm)"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope; identity + license to confirm before any use."
+
+  - id: agront
+    function: "crop-targeted DNA model — FLORA OUT-list -> ours, but NON-COMMERCIAL license"
+    role: agri
+    phase: "P3 (LICENSE HOLD)"
+    license: "Non-commercial (InstaDeep AgroNT, CC BY-NC-* per Stan 2026-10-24) — HOLD: not usable for commercial release"
+    date_checked: "2026-10-24"
+    source: "InstaDeep AgroNT"
+    commercial_ok: false
+    derivative_ok: "NC-only"
+    hosted_by_us: false
+    notes: "LICENSE HOLD (not a safety block): crop-relevant and in our generative sphere, but NC license forbids commercial use. Do NOT ship in any commercial path; research-only unless relicensed. Flag at any use."
+
   - id: pinal
     function: "text->protein programmable design (natural-language -> 3Di structure -> sequence); SERVE-first (16B)"
     role: generation_core
