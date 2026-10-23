@@ -74,6 +74,26 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0021 | 2026-10-24 | Screenshot log = OLD run #6 (pre-M10 cairosvg crash); current chain VERIFIED clean
+
+- **Trigger:** Stan screenshotted the Kaggle Logs tab showing `ModuleNotFoundError: No
+  module named 'cairosvg'` + exit 1, timestamp Oct 23 **12:01** (`moflow_ckpts_1023-1201`).
+- **Initial reaction (corrected):** I first called it "a crash, not training" — reacting
+  before verifying (the very thing G14 forbids). Then I VERIFIED.
+- **Verification (G14):** cloned reference moflow fresh, ran the exact fetch_thirdparty
+  sorted-glob apply sequence (order: 10,5,6,9 — lexicographic). ALL FOUR patches applied
+  cleanly; generate.py cairosvg became `try: import cairosvg / except: cairosvg = None`.
+  So the current patch chain is correct; `git apply` tolerates the ordering offset.
+- **Conclusion:** the 12:01 log is run #6, from BEFORE M-10 was committed — historical,
+  already fixed. Run #7 (pushed ~20:00, post-M10) has the working chain; its 6h RUNNING
+  status is consistent with genuine training (a cairosvg crash would die at ~5 min).
+- **Minor real issue:** our LOCAL third_party/moflow copy is stale (built pre-M10, shows
+  cairosvg unpatched). Harmless — Kaggle clones fresh each run. Re-fetch locally if we
+  ever train on the dev box.
+- **Latent fragility noted (not urgent):** fetch_thirdparty's except-handler would
+  double-raise if a patch genuinely failed both apply and reverse-check; not triggered
+  since all patches apply. Harden later if touched.
+
 ## F-0020 | 2026-10-24 | New hard rule G14 — research-before-execute (Stan)
 
 - **Rule (Stan):** if an action/approach needs verifying, conduct research FIRST to
