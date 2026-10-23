@@ -1,0 +1,19 @@
+﻿diff --git a/mflow/utils/sascorer.py b/mflow/utils/sascorer.py
+index a7d0f9b..4c3e52b 100644
+--- a/mflow/utils/sascorer.py
++++ b/mflow/utils/sascorer.py
+@@ -21,7 +21,13 @@ from rdkit import Chem
+ from rdkit.Chem import rdMolDescriptors
+ # from rdkit.six.moves import cPickle
+ import pickle as cPickle
+-from rdkit.six import iteritems
++try:
++    from rdkit.six import iteritems  # noqa: F401  (RDKit <= 2023.09 bundles its own six copy)
++except ImportError:
++    # M-MOFLOW-9 compat shim (PinoBio): modern RDKit (>=2024.03) removed the
++    # bundled rdkit.six module; use the plain Python-3 equivalent.
++    def iteritems(d):
++        return d.items()
+ 
+ import math
+ from collections import defaultdict
