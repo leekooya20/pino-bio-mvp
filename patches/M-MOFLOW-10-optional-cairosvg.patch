@@ -1,0 +1,22 @@
+﻿diff --git a/mflow/generate.py b/mflow/generate.py
+index 7c7473a..80bded9 100644
+--- a/mflow/generate.py
++++ b/mflow/generate.py
+@@ -26,7 +26,16 @@ from mflow.models.model import MoFlow, rescale_adj
+ import mflow.utils.environment as env
+ 
+ # from IPython.display import SVG, display
+-import cairosvg
++try:
++    import cairosvg  # noqa: F401  (needed only for molecule figure output)
++except ImportError:
++    # M-MOFLOW-10 compat shim (PinoBio): cairosvg (+ the cairo native lib) is
++    # required only when figures are dumped (svg2pdf/svg2png call sites).
++    # Every protocol we run (training; README random-generation eval) uses
++    # --save_fig false, so keep those alive without the optional heavy dep.
++    # If --save_fig true is ever requested without cairosvg, the call sites
++    # fail with a clear AttributeError instead of an import-time crash.
++    cairosvg = None
+ from data.data_loader import NumpyTupleDataset
+ 
+ import time
