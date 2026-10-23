@@ -74,6 +74,19 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0014 | 2026-10-23 | Scope-discipline check (Stan) — breadth-before-depth risk flagged
+
+- **Observation (Stan):** reminder to stay in scope. Audit result: nothing is OUT of
+  scope — every artifact maps to MVP-4 core (Molek/Seqgen/RFD4/ESM-2 + /v1), a
+  registered later-board item (§6/§7/§8), or an explicit 2026-10-23 authorization
+  (Pinal A7, NLP intent A8).
+- **Real risk identified:** not scope creep but SEQUENCE — a lot of perimeter
+  scaffolding was built while the core deliverable (Molek-30M checkpoint + honest eval,
+  D2/D3) is still gated on Kaggle run #7. Wide perimeter, empty center.
+- **Decision:** HOLD on new features. Next work is strictly D2 (pull checkpoint) → D3
+  (honest eval) when run #7 lands; all other modules stay ready-but-parked until there
+  is a trained base to run them against. No new capabilities without an explicit ask.
+
 ## F-0013 | 2026-10-23 | The workbench UI belongs in SciACA, not our backend repo (Stan)
 
 - **Observation/decision (Stan):** the §7 trajectory workbench is a LAB-UI feature, so
