@@ -31,16 +31,15 @@ subprocess.run(["bash", "-lc",
                 f"cd third_party/moflow/mflow && python /kaggle/pino-bio-mvp/scripts/reconstruct_moflow_params.py {snap_dir}/moflow-params.json"],
                check=True)
 
-# %% [cell 3] MOSES-library metrics (moses pkg on path)
+# %% [cell 3] distributional metrics: FCD (fcd_torch) + IntDiv/SNN (RDKit), no moses pkg
 os.makedirs("/kaggle/working/moses", exist_ok=True)
 rc = subprocess.run(["bash", "-lc",
     "cd third_party/moflow/mflow && "
-    "PYTHONPATH=/kaggle/pino-bio-mvp/third_party/moses:$PYTHONPATH "
     "python /kaggle/pino-bio-mvp/scripts/eval_moses_metrics.py "
     f"--model_dir {snap_dir} --snapshot model_snapshot_epoch_197 "
     "--n_gen 30000 --batch 10000 --temp 0.85 "
     "--out /kaggle/working/moses/molek-moses.json"])
-print("moses eval exit:", rc.returncode)
+print("dist eval exit:", rc.returncode)
 
 # %% [cell 4] show result
 subprocess.run(["bash", "-lc", "cat /kaggle/working/moses/molek-moses.json 2>/dev/null; ls -lh /kaggle/working/moses"], check=False)
