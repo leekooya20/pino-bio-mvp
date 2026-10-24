@@ -58,12 +58,23 @@ def sample(ckpt: str, inputs: dict) -> dict:
     n = int(inputs.get("n", 10))
     temp = float(inputs.get("temperature", 0.85))
     try:
+        # moflow must be importable BEFORE the mflow/data imports below (F-0041: the path
+        # insert used to live only in _load(), which runs too late).
+        if str(_MFLOW) not in sys.path:
+            sys.path.insert(0, str(_MFLOW))
+        if str(_MFLOW.parent) not in sys.path:
+            sys.path.insert(0, str(_MFLOW.parent))
         import torch
         from mflow.generate import generate_mols
         from mflow.models.utils import check_validity
         from data import transform_zinc250k
-        from rdkit import Chem
-        from rdkit.Chem import Crippen, QED
+        from rdkit import Chem, DataStructs
+        from rdkit.Chem import AllChem, Crippen, Descriptors, Lipinski, QED, rdMolDescriptors
+
+        try:  # SA score via the pinned reference sascorer (M-MOFLOW-9 shim applied)
+            from mflow.utils import sascorer
+        except Exception:  # noqa: BLE001
+            sascorer = None
 
         model = _load(ckpt)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,14 +83,39 @@ def sample(ckpt: str, inputs: dict) -> dict:
         with torch.no_grad():
             adj, x = generate_mols(model, batch_size=batch, temp=temp, device=device)
         res = check_validity(adj, x, atomic, correct_validity=True, debug=False)
+
+        # optional similarity-to-seed (Tanimoto, Morgan r2) if the caller gave an anchor SMILES
+        seed_fp = None
+        seed_smiles = (inputs.get("smiles") or "").strip().splitlines()
+        if seed_smiles:
+            sm = Chem.MolFromSmiles(seed_smiles[0])
+            if sm is not None:
+                seed_fp = AllChem.GetMorganFingerprintAsBitVect(sm, 2, nBits=2048)
+
         mols = []
         for smi in res["valid_smiles"][:n]:
             m = Chem.MolFromSmiles(smi)
             if m is None:
                 continue
-            mols.append({"smiles": smi,
-                         "qed": round(float(QED.qed(m)), 4),
-                         "logp": round(float(Crippen.MolLogP(m)), 4)})
+            logp = float(Crippen.MolLogP(m))
+            mw = float(Descriptors.MolWt(m))
+            hbd = int(Lipinski.NumHDonors(m))
+            hba = int(Lipinski.NumHAcceptors(m))
+            rec = {
+                "smiles": smi,
+                "qed": round(float(QED.qed(m)), 4),
+                "logp": round(logp, 4),
+                "mw": round(mw, 2),
+                "tpsa": round(float(rdMolDescriptors.CalcTPSA(m)), 2),
+                "hbd": hbd, "hba": hba,
+                "sa": round(float(sascorer.calculateScore(m)), 2) if sascorer else None,
+                # Lipinski Ro5 (all four real descriptors)
+                "lipinski": (mw <= 500 and logp <= 5 and hbd <= 5 and hba <= 10),
+            }
+            if seed_fp is not None:
+                fp = AllChem.GetMorganFingerprintAsBitVect(m, 2, nBits=2048)
+                rec["sim"] = round(float(DataStructs.TanimotoSimilarity(seed_fp, fp)), 4)
+            mols.append(rec)
         return {"status": "succeeded", "measured": True, "model": "molek",
                 "molecules": mols, "truncated": len(res["valid_smiles"]) > n,
                 "provenance": "Molek-30M (our from-scratch MoFlow replica, epoch 197); "

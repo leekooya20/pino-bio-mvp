@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]  # serving/tools.py -> repo root (was parents[2] = outside repo, F-0041)
 
 
 def _pending(note: str, **extra) -> dict:

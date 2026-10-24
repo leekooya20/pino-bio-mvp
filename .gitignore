@@ -26,3 +26,5 @@ chebi/
 farm-knob-out/
 *.log
 seqgen_val_final/
+artifacts/molek-30m/
+

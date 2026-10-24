@@ -1,4 +1,25 @@
-﻿## F-0040 | 2026-10-24 | NVIDIA-BioNeMo coverage audit — gaps found (Stan: "baka may nakalimutan ka")
+﻿## F-0041 | 2026-10-24 | Molek /v1 backend PROVEN live (real molecules) + 2 serving bugs fixed; UI left to PinoAI
+
+- Stan: "naka connect na ba sa SciACA lab, working na at hindi mock?" Honest check: it was NOT
+  live — no server running, no checkpoint staged, torch absent, SciACA had no VITE_API_BASE ->
+  demo fallback. The earlier "connect" was only the contract + cards, not a running backend.
+- Stood up the real backend locally (torch CPU + staged sha256-verified ckpt + M-MOFLOW-9/10/13
+  patches applied to vendored moflow) and PROVED real generation: POST /v1/jobs generate-molecule
+  -> status succeeded, measured=true, real Molek-30M (epoch 197) SMILES with real RDKit
+  qed/logp/mw/tpsa/hbd/hba/SA/Ro5. Backend genuinely works end-to-end.
+- Two real bugs fixed (both backend, ours):
+  - serving/tools.py: ROOT was parents[2] (resolved to Documents/, OUTSIDE the repo) -> default
+    MOLEK_CKPT path wrong -> always "pending". Fixed to parents[1].
+  - serving/runtimes/molek_runtime.py: imported `mflow` BEFORE _load() inserted its sys.path ->
+    ModuleNotFoundError. Moved the path insert to the top of sample(). Also enriched each molecule
+    with the full real RDKit panel (mw/tpsa/hbd/hba/SA/Ro5 + optional Tanimoto-to-seed).
+- SCOPE: Stan said "wala kang gagalawin sa UI, hayaan mo si PinoAI dyan." I had wired SciACA's
+  RunPage/MoleculesResult/registry to the live API + verified typecheck — then REVERTED all those
+  UI edits (uncommitted) per Stan. The UI consumption is PinoAI's; we hand them a working /v1.
+- To tell PinoAI: handshake doc updated with the live-backend contract + how to point
+  VITE_API_BASE at it (their RunPage wiring), so they connect the Lab on their side.
+
+## F-0040 | 2026-10-24 | NVIDIA-BioNeMo coverage audit — gaps found (Stan: "baka may nakalimutan ka")
 
 - Checked github.com/NVIDIA-BioNeMo live (27 public repos). Our roster was built on the OLD
   BioNeMo Service; the current org has a much larger zoo. Audit -> docs/bionemo-coverage-audit.md.
