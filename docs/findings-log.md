@@ -1,4 +1,28 @@
-﻿## F-0035 | 2026-10-24 | Molek connected to SciACA + honest generative metrics (GenD scope only)
+﻿## F-0037 | 2026-10-24 | In-house competitor benchmark (BENCH-MOL-001) design + scorer
+
+- User chose: run FROZEN author checkpoints GDSS + CDGS (run-only, G1 — their source NOT
+  vendored), scored through our harness. Research (via subagent + EBI/GitHub): only GDSS
+  (in-repo zinc250k ckpt, no declared license) and CDGS (Google-Drive zinc250k ckpt, no
+  declared license) ship ready ZINC250k checkpoints; GraphAF/DiGress/GraphARM would need
+  from-scratch training (deferred).
+- scripts/score_smiles_benchmark.py: model-AGNOSTIC scorer = the fairness core. Every model
+  emits a SMILES list; this one script computes validity/uniqueness/novelty + FCD (fcd_torch)
+  + IntDiv/SNN (RDKit) identically vs the SAME zinc250k train/test splits as Molek. Pure-logic
+  core (dedup_novelty) unit-checked. Design: decouple generation (model-specific frozen code)
+  from scoring (shared) to guarantee zero metric drift.
+
+## F-0036 | 2026-10-24 | Seqgen pilot train OOM (SIGKILL 9) -> fixed
+
+- seqgen-train-r1 v1 ERROR: data prep (300k stream) + BPE (vocab 10k) succeeded, then
+  train_seqgen.py died with SIGKILL:9 (OOM) ~26 min in. Cause: tokenize_blocks built the whole
+  270k-seq corpus as python-int lists AND a full `labels` copy, then Dataset.from_dict (Arrow)
+  -> peak RAM blew Kaggle's limit.
+- Fix (F-0036): (1) cap sequences via --max_seqs (default 150k; a bounded pilot only needs
+  ~max_steps*bsz*grad_accum*block tokens); (2) store blocks as ONE compact int32 numpy array,
+  not a list of int lists; (3) drop the labels copy — DataCollatorForLanguageModeling(mlm=False)
+  derives labels on the fly. Compile OK; relaunching.
+
+## F-0035 | 2026-10-24 | Molek connected to SciACA + honest generative metrics (GenD scope only)
 
 - Serving /v1 catalog (serving/models_catalog.py): molek card training -> **available**, with
   MEASURED metrics attached (validity 99.95% corrected / novelty 100% / uniqueness 99.99% /

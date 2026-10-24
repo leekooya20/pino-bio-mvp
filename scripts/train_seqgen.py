@@ -32,12 +32,18 @@ def main() -> int:
     ap.add_argument("--save_steps", type=int, default=500)
     ap.add_argument("--bsz", type=int, default=8)
     ap.add_argument("--grad_accum", type=int, default=8)
+    # F-0036: cap sequences fed into the in-RAM block builder (OOM fix). A bounded pilot
+    # needs ~max_steps * bsz * grad_accum * block tokens; 150k seqs covers 3000 steps.
+    ap.add_argument("--max_seqs", type=int, default=int(os.environ.get("SEQGEN_MAX_SEQS", 150000)))
     args = ap.parse_args()
 
+    import gc
+
+    import numpy as np
     import torch
     from tokenizers import Tokenizer
-    from transformers import (GPT2Config, GPT2LMHeadModel, PreTrainedTokenizerFast,
-                              Trainer, TrainingArguments)
+    from transformers import (DataCollatorForLanguageModeling, GPT2Config, GPT2LMHeadModel,
+                              PreTrainedTokenizerFast, Trainer, TrainingArguments)
     from datasets import Dataset
 
     # tokenizer (from the validated BPE tokenizer.json)
@@ -61,16 +67,21 @@ def main() -> int:
         return out
 
     def tokenize_blocks(seqs):
-        ids = []
+        # Flat token stream -> fixed blocks, stored as ONE compact int32 array (not a list of
+        # python-int lists) and WITHOUT a labels copy (the collator derives labels). F-0036 OOM fix.
+        flat = []
         for s in seqs:
-            ids.extend(tok(s, add_special_tokens=False)["input_ids"])
-        n = (len(ids) // args.block) * args.block
-        blocks = [ids[i:i + args.block] for i in range(0, n, args.block)]
-        return Dataset.from_dict({"input_ids": blocks, "labels": [b[:] for b in blocks]})
+            flat.extend(tok(s, add_special_tokens=False)["input_ids"])
+        n = (len(flat) // args.block) * args.block
+        arr = np.asarray(flat[:n], dtype=np.int32).reshape(-1, args.block)
+        del flat
+        gc.collect()
+        return Dataset.from_dict({"input_ids": arr})
 
-    print("[seqgen] tokenizing train/eval ...")
-    train_ds = tokenize_blocks(read_seqs(args.train_fa))
+    print(f"[seqgen] tokenizing train (cap {args.max_seqs:,} seqs) / eval ...")
+    train_ds = tokenize_blocks(read_seqs(args.train_fa)[: args.max_seqs])
     eval_ds = tokenize_blocks(read_seqs(args.eval_fa)[:5000])
+    collator = DataCollatorForLanguageModeling(tokenizer=tok, mlm=False)  # labels on the fly
     print(f"[seqgen] train blocks {len(train_ds)} eval blocks {len(eval_ds)}")
 
     # config from configs/seqgen-ur50.yaml (P-PTGPT2-1): 10L / d640 / 10H
@@ -90,7 +101,8 @@ def main() -> int:
         eval_strategy="steps", eval_steps=args.save_steps,
         report_to=[], seed=20261023, dataloader_num_workers=2,
     )
-    trainer = Trainer(model=model, args=targs, train_dataset=train_ds, eval_dataset=eval_ds)
+    trainer = Trainer(model=model, args=targs, train_dataset=train_ds, eval_dataset=eval_ds,
+                      data_collator=collator)
     t0 = time.time()
     trainer.train()
     metrics = trainer.evaluate()
@@ -100,7 +112,7 @@ def main() -> int:
 
     run_meta = {"stage": "seqgen-pilot-train", "model": "seqgen-small",
                 "params": nparams, "vocab": vocab, "block": args.block,
-                "max_steps": args.max_steps, "seed": 20261023,
+                "max_steps": args.max_steps, "max_seqs": args.max_seqs, "seed": 20261023,
                 "eval_loss": metrics.get("eval_loss"),
                 "perplexity_standalone": ppl,  # F-0008: no reference ppl to compare
                 "compare_to_reference_ppl": False,
