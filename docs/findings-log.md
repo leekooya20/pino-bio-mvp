@@ -1,4 +1,20 @@
-﻿## F-0039 | 2026-10-24 | Farm-knob (train a) COMPLETE — agri moat trained + measured
+﻿## F-0040 | 2026-10-24 | NVIDIA-BioNeMo coverage audit — gaps found (Stan: "baka may nakalimutan ka")
+
+- Checked github.com/NVIDIA-BioNeMo live (27 public repos). Our roster was built on the OLD
+  BioNeMo Service; the current org has a much larger zoo. Audit -> docs/bionemo-coverage-audit.md.
+- Real gaps we had NOT registered (now logged, NOT integrated): GenMol (masked-discrete-diffusion
+  fragment molecule gen, SAFE — our FCD/diffusion lever), Proteina-Complexa (binder design, prot+
+  small-mol targets — our §6 scope) + la-proteina (all-atom), ReaSyn (synthesis-pathway =
+  synthesizability gate), CodonFM + JEPA-DNA (DNA/codon foundation models — DNA-gen modality),
+  nvDock + dualbind + Boltz-2 (docking/affinity/co-folding — optimize loop), KERMT (property pred,
+  FLORA), RNAPro (RNA folding — NEW MODALITY question for Stan). Tooling: bionemo-recipes (feeds our
+  CPT/SFT/LoRA ladder), nvMolKit.
+- G1 flag: NVIDIA repos split code vs weights licenses (GenMol has license_code.txt +
+  license_weights.txt + 3rd_party/); weights often NVIDIA Open Model / non-commercial. Every new
+  entry = license UNVERIFIED until code AND weights checked, before any serve/adapt.
+- Our owned core unchanged (Molek done, Seqgen training); edge stays owned-small + agri moat + honesty.
+
+## F-0039 | 2026-10-24 | Farm-knob (train a) COMPLETE — agri moat trained + measured
 
 - farmknob-train-r1 v3 COMPLETE. G1 gate pass (CC BY 4.0 live). Agri set from the agrochemical
   (33286) + pesticide (25944) has_role subtrees: 72 roles, 1,212 agrochemical molecules, 963 with
