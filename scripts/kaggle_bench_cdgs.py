@@ -22,6 +22,16 @@ git clone --depth 1 https://github.com/leekooya20/pino-bio-mvp.git /kaggle/pino-
 subprocess.run(["bash", "-lc",
                 "pip install -q ml-collections absl-py 'networkx<3' rdkit fcd_torch gdown torch-geometric"],
                check=True)
+# CDGS's models/utils.py needs torch_scatter (+ torch_sparse) — the PyG C++ companions. Pull the
+# wheel matching Kaggle's exact torch+CUDA from the PyG index (source build would fail/time out).
+subprocess.run(["bash", "-lc", r"""
+set -e
+TORCH=$(python -c "import torch;print(torch.__version__.split('+')[0])")
+CUDA=$(python -c "import torch;print('cu'+torch.version.cuda.replace('.','') if torch.version.cuda else 'cpu')")
+echo "torch=$TORCH cuda=$CUDA"
+pip install -q torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-${TORCH}+${CUDA}.html
+python -c "import torch_scatter, torch_sparse; print('torch_scatter', torch_scatter.__version__)"
+"""], check=True)
 
 os.chdir("/kaggle/CDGS")
 
