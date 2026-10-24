@@ -48,6 +48,20 @@ find /tmp/cdgs256 -name '*.pth' -exec cp -v {{}} /kaggle/CDGS/exp/vpsde_zinc_cdg
 ls -lh /kaggle/CDGS/exp/vpsde_zinc_cdgs_256/checkpoints/
 """], check=True)
 
+# (1b) run-only py3.13 shim: CDGS sascorer.py does `from rdkit.six import iteritems`, but modern
+#      RDKit removed the bundled six (same as moflow M-MOFLOW-9). Patch to the plain py3 equivalent.
+subprocess.run(["bash", "-lc", r"""
+python - <<'PY'
+p = '/kaggle/CDGS/sascorer.py'
+s = open(p).read()
+s = s.replace(
+    'from rdkit.six import iteritems',
+    'try:\n    from rdkit.six import iteritems\nexcept ImportError:\n    def iteritems(d):\n        return d.items()')
+open(p, 'w').write(s)
+print('patched CDGS sascorer.py rdkit.six shim (run-only)')
+PY
+"""], check=True)
+
 # (2) generate with CDGS's own frozen code via OUR driver (no moses import; run-only)
 subprocess.run(["bash", "-lc",
                 "cp /kaggle/pino-bio-mvp/scripts/bench/cdgs_gen.py /kaggle/CDGS/cdgs_gen.py"],
