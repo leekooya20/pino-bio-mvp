@@ -13,10 +13,14 @@ os.chdir("/kaggle/pino-bio-mvp")
 subprocess.run(["bash", "-lc", "pip install -q tokenizers tqdm"], check=True)
 
 # (1) stream a small UR50 subsample (validation N; the real pilot uses ~1.5M)
-subprocess.run(["python", "scripts/prepare_seqgen_pilot.py", "--n", "300000"], check=True)
+subprocess.run(["python", "scripts/prepare_seqgen_pilot.py", "--n", "100000"], check=True)
 
-# (2) train BPE on the streamed pilot train split
+# (2) train BPE on the streamed pilot train split — TINY + FAST for validation
+#     (F-0031: 50k/10k vocab on long protein strings crawled/swapped; a validation only
+#      needs to prove the tokenizer trains. 4k vocab on 20k seqs = seconds.)
 os.environ["SEQGEN_TRAIN_FA"] = "/kaggle/pino-bio-mvp/data/external/uniref50_pilot/ur50_pilot.train.fasta"
+os.environ["SEQGEN_VOCAB"] = "4000"
+os.environ["SEQGEN_BPE_MAXSEQ"] = "20000"
 subprocess.run(["python", "scripts/train_bpe_seqgen.py"], check=True)
 
 # (3) persist validation evidence
