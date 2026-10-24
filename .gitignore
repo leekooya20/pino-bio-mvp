@@ -22,3 +22,7 @@ release/
 *.key
 
 data/external/*
+chebi/
+farm-knob-out/
+*.log
+seqgen_val_final/

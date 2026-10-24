@@ -35,7 +35,13 @@ EXTERNAL = ROOT / "data" / "external" / "chebi_agchem"
 MANIFEST = ROOT / "data" / "manifests" / "chebi-agchem.jsonl"
 PAIRS = EXTERNAL / "pairs.jsonl"
 
-AGROCHEMICAL_ROOT = "CHEBI:33286"          # verified live 2026-10-23
+# Agri-chemistry role roots (verified live via EBI OLS 2026-10-24, C-CHEBI-2):
+#   CHEBI:33286 agrochemical  -> fertilizer, plant activator, safener, antifungal agrochemical, ...
+#   CHEBI:25944 pesticide     -> herbicide, insecticide, fungicide, acaricide, nematicide, ... (66 desc.)
+# The old single 33286 root MISSED all pesticide classes (they sit under pesticide, a sibling
+# of agrochemical under "application") -> 0 molecules. Union of both roots = real crop-protection space.
+AGRI_ROLE_ROOTS = ["CHEBI:33286", "CHEBI:25944"]
+AGROCHEMICAL_ROOT = AGRI_ROLE_ROOTS[0]     # kept for back-compat / manifest label
 LICENSE_URLS = ["https://raw.githubusercontent.com/ebi-chebi/ChEBI/master/LICENSE",
                 "https://www.ebi.ac.uk/chebi/"]
 LICENSE_EXPECT = re.compile(r"(CC[\s-]*BY[\s-]*4\.0|Creative Commons Attribution 4\.0|Apache)", re.I)
@@ -214,10 +220,13 @@ def main() -> int:
         return 3
 
     terms = parse_obo(obo.read_text(encoding="utf-8", errors="replace"))
-    roles = role_subtree(terms, AGROCHEMICAL_ROOT)
+    roles: set[str] = set()
+    for root in AGRI_ROLE_ROOTS:
+        roles |= role_subtree(terms, root)
     mol_ids = agrochemical_molecules(terms, roles)
     smiles_map = parse_sdf_smiles(sdf)
-    print(f"ok  roles in agrochemical tree: {len(roles)} · agrochemical molecules: {len(mol_ids)}")
+    print(f"ok  agri-role tree (roots {','.join(AGRI_ROLE_ROOTS)}): {len(roles)} roles · "
+          f"molecules with an agri role: {len(mol_ids)} · SMILES in SDF: {len(smiles_map)}")
 
     n_pairs = 0
     n_desc = 0
@@ -238,6 +247,7 @@ def main() -> int:
         "id": "chebi-agchem",
         "license": "CC BY 4.0 (verified live this run)",
         "license_check": lic,
+        "agri_role_roots": AGRI_ROLE_ROOTS,
         "agrochemical_root": AGROCHEMICAL_ROOT,
         "n_roles_in_tree": len(roles),
         "n_molecules": len(mol_ids),
@@ -248,7 +258,8 @@ def main() -> int:
         "pairs_path": str(PAIRS),
         "retrieved_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "feeds": ["farm-knob M-MOFLOW-3 (descriptor stats)", "intent-mol N-NLP-1 (text->descriptor pairs)"],
-        "note": "agrochemical set derived from ChEBI has_role over CHEBI:33286 subtree (G11, not hand-picked)",
+        "note": "agri set derived from ChEBI has_role over the agrochemical (CHEBI:33286) + "
+                "pesticide (CHEBI:25944) is_a subtrees (G11, not hand-picked; C-CHEBI-2)",
     }
     existing = []
     if MANIFEST.exists():
