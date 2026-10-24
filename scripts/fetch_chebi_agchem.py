@@ -97,10 +97,16 @@ def parse_obo(obo_text: str) -> dict[str, dict]:
             m = re.search(r"(CHEBI:\d+)", line)
             if m:
                 cur["is_a"].add(m.group(1))
-        elif line.startswith("relationship: has_role"):
-            m = re.search(r"has_role (CHEBI:\d+)", line)
-            if m:
-                cur["has_role"].add(m.group(1))
+        elif line.startswith("relationship:"):
+            # C-CHEBI-3: current ChEBI OBO encodes "has role" as the Relation Ontology id
+            # `relationship: RO:0000087 CHEBI:xxxxx ! has role <name>` (NOT the literal
+            # `has_role` the old regex expected -> 0 molecules). Accept both forms; take the
+            # first CHEBI on the line as the role. Other relationship types (has_part,
+            # is_conjugate_* ... use different RO ids) are ignored.
+            if "RO:0000087" in line or "has_role" in line:
+                m = re.search(r"(CHEBI:\d+)", line)
+                if m:
+                    cur["has_role"].add(m.group(1))
     return terms
 
 

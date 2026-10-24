@@ -26,7 +26,7 @@ is_a: CHEBI:33286
 id: CHEBI:27744
 name: glyphosate
 def: "A phosphonic acid herbicide."
-relationship: has_role CHEBI:24527
+relationship: RO:0000087 CHEBI:24527 ! has role herbicide
 
 [Term]
 id: CHEBI:99999

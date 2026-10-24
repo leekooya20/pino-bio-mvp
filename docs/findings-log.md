@@ -1,4 +1,18 @@
-﻿## F-0037 | 2026-10-24 | In-house competitor benchmark (BENCH-MOL-001) design + scorer
+﻿## F-0038 | 2026-10-24 | Farm-knob: ChEBI OBO uses RO:0000087, not literal has_role (C-CHEBI-3)
+
+- Farm-knob v2 still gave 0 molecules (but 72 roles now — C-CHEBI-2 union worked; SMILES 52,866
+  — C-CHEBI-1 worked). Diagnosed via HTTP Range reads of the live chebi.obo (no 259MB download):
+  the current OBO encodes "has role" as `relationship: RO:0000087 CHEBI:xxxxx ! has role <name>`
+  (Relation Ontology id), NOT the literal `relationship: has_role` the parser expected -> every
+  molecule->role edge was missed -> 0 molecules.
+- Fix C-CHEBI-3: parse_obo now treats a `relationship:` line as has_role when it contains
+  RO:0000087 (current) OR the literal has_role (legacy), taking the first CHEBI on the line as
+  the role. Unit test updated to the real RO:0000087 format (+ one legacy has_role kept). 3/3 pass.
+- Lesson: three farm-knob iterations, each a DIFFERENT real-data assumption that only the live
+  ChEBI files could reveal (SDF SMILES property absent; agrochemical vs pesticide tree; has_role
+  RO id). Each caught by inspecting real data before/after a fast-failing run, not by guessing.
+
+## F-0037 | 2026-10-24 | In-house competitor benchmark (BENCH-MOL-001) design + scorer
 
 - User chose: run FROZEN author checkpoints GDSS + CDGS (run-only, G1 — their source NOT
   vendored), scored through our harness. Research (via subagent + EBI/GitHub): only GDSS
