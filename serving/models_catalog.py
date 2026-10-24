@@ -13,14 +13,26 @@ MODELS: list[dict] = [
         "name": "Molek-30M",
         "family": "Molecular graph generator",
         "areas": ["generate", "optimize"],
-        "status": "training",  # honest: run #7 in progress; no checkpoint yet (G7)
-        "version": "0.1 · 30M (29,049,444 params)",
+        "status": "available",  # trained (epoch 197/200), evaluated + wired (G7: measured)
+        "version": "1.0 · 30M (29,049,444 params) · epoch 197",
         "tagline": "De novo molecular graphs via an invertible flow, validity-checked.",
         "license": "MIT (reference)",
         "source": "Our from-scratch replica — MoFlow (Zang & Wang, KDD 2020)",
         "served": False,
         "ours": True,
         "lineage": "MoFlow replica (Zang & Wang, KDD 2020), MIT, own from-scratch training",
+        "checkpoint_sha256": "7f8374df3cb86e31182d4a42ff1bfd2d97df7edd5b788c9cd1090e6dbf722228",
+        # measured on ZINC250k (10k x 5, temp 0.85); corrected-validity is MoFlow's
+        # capability metric. Distribution over 30k gens vs the zinc250k test split.
+        # Never blended with served-model numbers (G7).
+        "metrics": [
+            ["Validity (corrected)", "99.95%", "10k x 5 samples, temp 0.85"],
+            ["Novelty", "100%", "Absent from the 224,568 training molecules"],
+            ["Uniqueness", "99.99%", "Distinct among generations"],
+            ["FCD/Test", "23.40", "fcd_torch vs zinc250k test (ref MoFlow 20.93)"],
+            ["IntDiv", "0.908", "Internal diversity (RDKit)"],
+        ],
+        "metrics_source": "docs/results/molek-30m-{D3-eval,distribution}.json",
     },
     {
         "id": "seqgen",

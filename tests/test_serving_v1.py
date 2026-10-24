@@ -21,7 +21,9 @@ def test_models_shape():
     # our replicas must carry a lineage line (never claim method authorship)
     molek = client.get("/v1/models/molek").json()
     assert "MoFlow replica" in molek["lineage"]
-    assert molek["status"] == "training"  # honest, no checkpoint yet
+    assert molek["status"] == "available"  # trained (epoch 197), evaluated + wired
+    # measured metrics are attached (G7: our numbers, never blended with served models)
+    assert any("99.95" in str(v) for row in molek["metrics"] for v in row)
 
 
 def test_unknown_task_is_validation_error():

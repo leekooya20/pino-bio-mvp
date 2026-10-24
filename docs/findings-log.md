@@ -1,4 +1,40 @@
-﻿## F-0033 | 2026-10-24 | Molek research paper rendered to PDF (PinoAI research-lane process matched)
+﻿## F-0035 | 2026-10-24 | Molek connected to SciACA + honest generative metrics (GenD scope only)
+
+- Serving /v1 catalog (serving/models_catalog.py): molek card training -> **available**, with
+  MEASURED metrics attached (validity 99.95% corrected / novelty 100% / uniqueness 99.99% /
+  FCD 23.40 / IntDiv 0.908; source docs/results/molek-30m-{D3-eval,distribution}.json) +
+  checkpoint sha256. Never blended with served models (G7).
+- scripts/fetch_molek_ckpt.py: stages the epoch-197 snapshot from Kaggle dataset
+  leexze/molek-30m-ckpt -> artifacts/molek-30m/model.pt, sha256-verified (G10), so
+  serving/tools.py:mol_generate returns real molecules on a GPU host.
+- SciACA PR #3 (aeodev/SciACA, branch molek-connect-honest-metrics): moflow card renamed
+  MoFlow -> Molek-30M with measured numbers (dropped fabricated novelty 98% / throughput
+  ~33/s); protgpt2 card renamed -> Seqgen-small, status beta -> planned (pilot training, no
+  perf claimed); demo moflow job validity 100% -> 99.95%. tsc --noEmit clean.
+- SCOPE DISCIPLINE: touched ONLY generative-tier cards. Left untouched = FLORA/analysis
+  cards (esm2/esmfold) and the SaaS demo workspace (team/billing/usage) — out of GenD scope,
+  and the demo fallback is intentional (client.ts: offline experience never breaks).
+- Tests updated to the new honest state (molek available + metrics present; chebi SDF parse
+  via rdkit molblock path). 27/27 pass.
+
+## F-0034 | 2026-10-24 | Farm-knob (train a): ChEBI SDF has NO <SMILES> property (C-CHEBI-1)
+
+- G14 catch BEFORE launch: inspected the real chebi_lite_3_stars.sdf.gz (correct name; the
+  previously-guessed ChEBI_lite_3star.sdf.gz 404s). It carries only molblocks + <ChEBI ID>/
+  <ChEBI NAME>/<STAR> tags — NO <SMILES> property. The old parse_sdf_smiles read a <SMILES>
+  tag -> would have returned ZERO and silently produced empty pairs (dishonest + broken).
+- Fix C-CHEBI-1: parse_sdf_smiles now derives SMILES from the molblock via RDKit
+  ForwardSDMolSupplier (reads .gz directly; RDLogger silenced; unparseable mols skipped, never
+  fabricated), with a <SMILES>-property fallback only when RDKit is absent. VERIFIED on the
+  real gz: **52,866 ChEBI->SMILES pairs** recovered.
+- compute_farmknob_stats.py (M-MOFLOW-3): descriptor steering target = pure stats (per-key
+  mean/std + p5..p95 band) of the agrochemical positives. train_intent_mol.py (N-NLP-1,
+  already built) trains the text->descriptor head on the same pairs.
+- G1 license gate verified live (ChEBI CC BY 4.0, both URLs 200 + CC-BY text present).
+- Launched Kaggle farmknob-train-r1 (fetch -> stats -> intent-mol; crash-safe: pairs.jsonl
+  persisted right after fetch). Seqgen pilot seqgen-train-r1 also running.
+
+## F-0033 | 2026-10-24 | Molek research paper rendered to PDF (PinoAI research-lane process matched)
 
 - Checked PinoAI research lane (PUBLICATIONS_INDEX): papers are Quarto .qmd -> Typst -> PDF,
   house template (_quarto.yml/_authors.yml/_style.typ), byline 'Stan Lee V. Natividad -

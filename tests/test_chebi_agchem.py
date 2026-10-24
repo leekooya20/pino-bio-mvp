@@ -35,18 +35,17 @@ def: "A drug, not a pesticide."
 relationship: has_role CHEBI:35475
 """
 
-SDF = """
-CHEBI:27744
-> <SMILES>
-O=C(O)CNCP(=O)(O)O
-
-$$$$
-CHEBI:99999
-> <SMILES>
-CC(=O)Oc1ccccc1C(=O)O
-
-$$$$
-"""
+def _write_chebi_sdf(path, pairs):
+    """Build a real ChEBI-style SDF (molblock + `> <ChEBI ID>` tag, NO <SMILES>
+    property — exactly how ChEBI ships it, C-CHEBI-1) so the RDKit path is exercised."""
+    from rdkit import Chem
+    blocks = []
+    for cid, smi in pairs:
+        mol = Chem.MolFromSmiles(smi)
+        block = Chem.MolToMolBlock(mol)
+        blocks.append(f"{block}>  <ChEBI ID>\n{cid}\n\n$$$$\n")
+    path.write_text("".join(blocks), encoding="utf-8")
+    return path
 
 
 def test_role_subtree_includes_children():
@@ -64,13 +63,19 @@ def test_agrochemical_molecules_selects_glyphosate_only():
     assert "CHEBI:99999" not in mols  # aspirin (drug role) out
 
 
-def test_sdf_smiles_parse():
-    smi = parse_sdf_smiles(SDF)
-    assert smi["CHEBI:27744"] == "O=C(O)CNCP(=O)(O)O"
+def test_sdf_smiles_parse(tmp_path):
+    # ChEBI SDF carries no <SMILES> property; SMILES is derived from the molblock (C-CHEBI-1).
+    from rdkit import Chem
+    sdf = _write_chebi_sdf(tmp_path / "chebi.sdf",
+                           [("CHEBI:27744", "O=C(O)CNCP(=O)(O)O"),
+                            ("CHEBI:99999", "CC(=O)Oc1ccccc1C(=O)O")])
+    out = parse_sdf_smiles(sdf)
+    # compare canonically (RDKit may re-canonicalise the input SMILES)
+    want = Chem.CanonSmiles("O=C(O)CNCP(=O)(O)O")
+    assert Chem.CanonSmiles(out["CHEBI:27744"]) == want
 
 
 if __name__ == "__main__":
     test_role_subtree_includes_children()
     test_agrochemical_molecules_selects_glyphosate_only()
-    test_sdf_smiles_parse()
-    print("chebi agchem logic ok")
+    print("chebi agchem role-tree logic ok (run `pytest` for the rdkit SDF path)")
