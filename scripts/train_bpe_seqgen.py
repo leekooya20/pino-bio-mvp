@@ -20,7 +20,10 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TRAIN_FA = ROOT / "data" / "external" / "uniref50_2021_04" / "ur50_subsample.train.fasta"
+import os as _os
+TRAIN_FA = Path(_os.environ.get(
+    "SEQGEN_TRAIN_FA",
+    str(ROOT / "data" / "external" / "uniref50_2021_04" / "ur50_subsample.train.fasta")))
 OUT_DIR = ROOT / "artifacts" / "seqgen-tokenizer"
 EOS = "<|endoftext|>"              # [REF] sequence delimiter used by ProtGPT2
 VOCAB_SIZE = 50_000               # target; realized size recorded in run_meta (G7)
