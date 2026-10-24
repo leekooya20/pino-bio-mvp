@@ -59,6 +59,13 @@ s = s.replace(
     'try:\n    from rdkit.six import iteritems\nexcept ImportError:\n    def iteritems(d):\n        return d.items()')
 open(p, 'w').write(s)
 print('patched CDGS sascorer.py rdkit.six shim (run-only)')
+
+# PyG drift: CDGS iterates `self.data.keys` (property in PyG 2.1) but modern PyG made it a method.
+d = '/kaggle/CDGS/datasets.py'
+t = open(d).read()
+t = t.replace('for key in self.data.keys:', 'for key in self.data.keys():')
+open(d, 'w').write(t)
+print('patched CDGS datasets.py PyG keys() (run-only)')
 PY
 """], check=True)
 
