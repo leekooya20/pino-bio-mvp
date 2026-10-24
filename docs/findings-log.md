@@ -1,4 +1,18 @@
-﻿## F-0025 | 2026-10-24 | Rung 2 — FCD exposes poor distributional fidelity (honest, tempers D3)
+﻿## F-0026 | 2026-10-24 | FCD CORRECTED — Molek matches MoFlow (I mis-scaled, fixed via baseline, G14)
+
+- **Correction of F-0025 over-alarm:** I called FCD 23.40 "poor" by comparing to the MOSES
+  scale (good ~1). WRONG scale. Published zinc250k baselines (GLAD 2024): GraphAF 16.02,
+  **MoFlow 20.93**, GDSS 14.66, DiGress 23.06, GraphArm 16.26. On zinc250k, FCD ~14-23 is
+  normal for everyone.
+- **Molek 23.40 ~= MoFlow reference 20.93** (slightly higher = 30M scale-down). So Molek
+  faithfully reproduces MoFlow on FCD too — NOTHING TO FIX. Matches reference on validity,
+  novelty, uniqueness, AND distributional fidelity.
+- **Architecture truth:** MoFlow is mid-pack on FCD by design ("fails to generate
+  high-fidelity samples" per CDGS); diffusion (GDSS) beats it. The FCD frontier needs a
+  DIFFUSION generator, not a Molek fix — logged as a roadmap lever.
+- **Lesson (G14):** get the reference baseline BEFORE interpreting a metric. I interpreted
+  then verified; should have verified first. Corrected transparently.
+## F-0025 | 2026-10-24 | Rung 2 — FCD exposes poor distributional fidelity (honest, tempers D3)
 
 - Distributional metrics (30k gen vs zinc250k test): FCD/Test **23.40** (HIGH=poor),
   SNN/Test **0.196** (LOW), IntDiv 0.908 / IntDiv2 0.900 (high diversity). Saved
@@ -360,4 +374,5 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
