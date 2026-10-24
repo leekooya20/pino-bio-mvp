@@ -1,4 +1,24 @@
-﻿## F-0041 | 2026-10-24 | Molek /v1 backend PROVEN live (real molecules) + 2 serving bugs fixed; UI left to PinoAI
+﻿## F-0042 | 2026-10-24 | BENCH-MOL-001: GDSS delivered; CDGS DEFERRED (PyG MessagePassing drift)
+
+- GDSS competitor benchmark COMPLETE (F in docs/results/bench-mol-001-gdss.json): in-house, our
+  shared scorer, same zinc250k splits as Molek. GDSS (diffusion) FCD 15.74 < Molek (flow) 23.40;
+  validity/novelty/uniqueness/diversity ~tied. Honest headline finding: diffusion leads FCD.
+- CDGS attempted via frozen author GDrive 256ch ckpt (run-only, G1). Four porting blockers CLEARED
+  in sequence (each a run-only fix): gdown folder dl OK (191M ckpt) -> torch_scatter+torch_sparse
+  from PyG wheel index -> sascorer rdkit.six shim (= M-MOFLOW-9) -> datasets.py self.data.keys()
+  (PyG property->method). THEN hit the hard wall: models/transformer_layers.py calls
+  `self.propagate(edge_index, query=, key=, value=, ...)` -> modern PyG `MessagePassing.propagate()`
+  rejects custom kwargs (PyG 2.1 inspected message() signature; PyG 2.5+ changed this).
+- DECISION: CDGS DEFERRED (not failed-silently). Running it faithfully needs a pinned PyG 2.1 +
+  torch 1.11 environment (Kaggle is torch 2.x / PyG 2.x); patching the model forward to modern PyG
+  would change CDGS's computation -> violates G11 (no longer their faithful frozen model). GDSS is a
+  sufficient, faithful, honest competitor result. CDGS can be revisited in a pinned-env container if
+  Stan wants a second diffusion point. No fabricated CDGS numbers (G7).
+- Coordination: PinoAI shipped SciACA PR #5 (FLORA T1 analysis page + layout; removed mocks except
+  Generate & Design, which stays ours). Added connected:true to Molek card (PR #4 branch) per their
+  badge contract. Boundaries reaffirmed: GenD owns Generate & Design; FLORA owns analysis page/cards.
+
+## F-0041 | 2026-10-24 | Molek /v1 backend PROVEN live (real molecules) + 2 serving bugs fixed; UI left to PinoAI
 
 - Stan: "naka connect na ba sa SciACA lab, working na at hindi mock?" Honest check: it was NOT
   live — no server running, no checkpoint staged, torch absent, SciACA had no VITE_API_BASE ->
