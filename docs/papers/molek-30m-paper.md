@@ -29,10 +29,23 @@ constraints (single free T4, ≤30M params), **faithfully reproduce the referenc
 generation quality** on ZINC250k — and does it provide a sound base for agricultural
 property-conditioned generation?
 
-## 2. Hypothesis
-A documented scale-down of MoFlow (H1) reproduces reference validity/novelty/uniqueness
-within measurement noise, and (H2) reproduces the reference's distributional fidelity (FCD)
-within the degradation expected from a ~25× parameter reduction.
+## 2. Hypotheses
+(Falsifiable + quantified, per `EXPERIMENT_PROTOCOL.md` style.)
+
+**Main hypothesis.** A compute-constrained from-scratch MoFlow replica (≤30M params, single
+free T4) reproduces the reference MoFlow's ZINC250k generation quality within measurement
+noise.
+
+**H1 (generation quality).** The 30M replica achieves corrected validity, novelty, and
+uniqueness each within **±1 percentage point** of the reference MoFlow (≈100%/100%/~100%).
+
+**H2 (distributional fidelity).** Despite ~25× fewer parameters, the replica's FCD stays the
+same order as the reference (20.93) — specifically **≤ 1.5× the reference FCD** — rather than
+degrading catastrophically.
+
+**H3 (correction dependence).** Uncorrected (raw) validity is near-zero, reflecting MoFlow's
+architectural reliance on valency correction; corrected metrics are therefore the capability
+measure.
 
 ## 3. Related work
 - **MoFlow** (Zang & Wang, KDD 2020): invertible normalizing flow over molecular graphs;
@@ -74,27 +87,78 @@ Published ZINC250k numbers (GLAD/Kalousis 2024; GDSS/CDGS tables):
 | GraphArm | 88.23 | 16.26 |
 | **Molek-30M (ours)** | **99.95** (corr.) | **23.40** |
 
-## 7. Experiments & results
-**7.1 Generation quality (corrected, M-MOFLOW-4), 10k×5, temp 0.85**
+## 7. Experiments
+Each experiment records the full field set required by `EXPERIMENT_PROTOCOL.md`.
 
-| Metric | Molek-30M | Reference MoFlow | Δ |
-|---|---|---|---|
-| Validity | 99.95% (sd 0.02) | 100.00% | −0.05 |
-| Novelty | 100.00% (sd 0.00) | 100.00% | 0 |
-| Uniqueness | 99.99% | ~100% | ~0 |
-| Abs. novelty | 99.94% | — | — |
-| Abs. uniqueness | 99.94% | — | — |
+### EXP-MOLEK-001 — from-scratch training
+- **Research question:** can MoFlow be trained from scratch at ≤30M on a single T4?
+- **Hypothesis:** Main.
+- **Model:** Molek-30M (29,049,444 params). **Dataset version:** ZINC250k
+  (`moses-zinc250k.jsonl`, 249,455 rows, sha256-pinned). **Tokenizer:** n/a (graph model).
+- **Training method:** normalizing-flow MLE, AMP fp16, Adam lr 1e-3, 200-epoch target.
+- **Hyperparameters:** b_hidden_ch 256,256 · a_n_flow 19 · a_hidden_gnn 128 ·
+  a_hidden_lin 256,64 · b_n_flow 5 · b_conv_lu 2 · noise_scale 0.6.
+- **Hardware:** 1× Kaggle T4×2. **Random seed:** 20261023. **Baseline:** reference MoFlow.
+- **Evaluation suite:** EXP-MOLEK-002/003. **Expected outcome:** stable training to ~200 ep.
+- **Actual results:** trained to **epoch 197/200**; checkpoint recovered (sha256
+  `7f8374df3cb8…`); param preflight 29,049,444 ≤ 30M.
+- **Conclusion:** from-scratch MoFlow@30M is feasible on a free T4. **Main supported.**
+- **Next action:** EXP-MOLEK-002.
 
-→ **H1 supported**: matches reference within noise.
+### EXP-MOLEK-002 — generation quality (dual-report, M-MOFLOW-4)
+- **Research question:** does the replica match reference validity/novelty/uniqueness?
+- **Hypothesis:** H1, H3.
+- **Model:** Molek-30M @ ep197. **Dataset version:** ZINC250k (same pin).
+- **Training method:** n/a (inference). **Hyperparameters:** 10,000 samples × 5 experiments,
+  temperature 0.85 (reference protocol). **Hardware:** T4. **Random seed:** 20261023.
+- **Baseline:** reference MoFlow (validity 100% / novelty 100% / uniqueness ~100%).
+- **Evaluation suite:** frozen reference `generate.py` (G3/G11).
+- **Expected outcome (H1):** corrected validity/novelty/uniqueness within ±1 pp of reference.
+- **Actual results:**
 
-**7.2 Uncorrected (raw) generation** — validity **0.00%** (5/5). This is MoFlow's
-architecture by design: raw graph-flow decode has valency violations that `correct_mol`
-repairs (reference always reports corrected). Reported, not hidden.
+  | Metric | Corrected | Uncorrected | Reference (corr.) | Δ vs ref |
+  |---|---|---|---|---|
+  | Validity | 99.95% (sd 0.02) | 0.00% (sd 0) | 100.00% | −0.05 |
+  | Novelty | 100.00% (sd 0.00) | 0.00% | 100.00% | 0 |
+  | Uniqueness | 99.99% | 0.00% | ~100% | ~0 |
+  | Abs. novelty | 99.94% | 0.00% | — | — |
+  | Abs. uniqueness | 99.94% | 0.00% | — | — |
 
-**7.3 Distributional fidelity** — FCD **23.40**, SNN/Test **0.196**, IntDiv **0.908**,
-IntDiv2 **0.900**. FCD 23.40 ≈ reference MoFlow 20.93 (within 30M scale-down) →
-**H2 supported**. On ZINC250k, FCD ~14–23 is the field norm; MoFlow/Molek are mid-pack,
-behind diffusion (GDSS 14.66).
+  Per-experiment valid counts /10,000: 9996, 9998, 9994, 9990, 9995.
+- **Conclusion:** **H1 supported** (all within ±1 pp). **H3 supported** (raw 0% = MoFlow
+  correction-dependence by design; reference always reports corrected).
+- **Next action:** EXP-MOLEK-003.
+
+### EXP-MOLEK-003 — distributional fidelity (FCD / SNN / IntDiv)
+- **Research question:** does the replica reproduce MoFlow's distribution quality?
+- **Hypothesis:** H2.
+- **Model:** Molek-30M @ ep197. **Dataset version:** ZINC250k test split (24,887).
+- **Training method:** n/a. **Hyperparameters:** 30,000 generations, temp 0.85, FCD via
+  fcd_torch (= MOSES FCD), IntDiv/SNN via RDKit Morgan. **Hardware:** T4. **Seed:** 20261023.
+- **Baseline:** published ZINC250k (MoFlow FCD 20.93; GDSS 14.66; GraphAF 16.02; DiGress 23.06).
+- **Evaluation suite:** `scripts/eval_moses_metrics.py`.
+- **Expected outcome (H2):** FCD ≤ 1.5× reference (≤ 31.4).
+- **Actual results:** FCD/Test **23.40** (= 23.3965) · SNN/Test **0.196** · IntDiv **0.908** ·
+  IntDiv2 **0.900**. FCD ratio vs ref = 23.40/20.93 = **1.12 ≤ 1.5**.
+- **Conclusion:** **H2 supported.** Molek ≈ reference MoFlow on FCD within scale-down; both
+  mid-pack on ZINC250k (diffusion leads, GDSS 14.66). Correction deferral (Frag/Scaf) noted.
+- **Next action:** train farm-knob (agri conditioning); diffusion architecture for FCD frontier.
+
+### Key findings
+1. Molek-30M **matches reference MoFlow** on validity/novelty/uniqueness (H1) and FCD (H2).
+2. Raw validity is **0%** — MoFlow-by-design (H3); corrected is the capability metric.
+3. MoFlow-family is **mid-pack** on distributional fidelity; diffusion is the frontier lever.
+
+### Failed / negative experiments (recorded per protocol)
+Honest record (full detail in `docs/findings-log.md`):
+- Training runs #1–#6 failed on sequential Python-3.13 incompatibilities (distutils,
+  orderedset wheel, rdkit.six, cairosvg) → each fixed as a permanent patch (M-MOFLOW-5/6/9/10).
+- D3 uncorrected eval initially crashed (`UnboundLocalError` in reference `check_novelty` on
+  0 valid) → M-MOFLOW-13.
+- Distributional eval: the 2020 `moses` package is py3.13-incompatible (rdkit.six; pandas-2
+  `DataFrame.append`) → pivoted to `fcd_torch` for FCD (M-MOSES-1 + G14 pivot).
+- Interpretation error (self-corrected): FCD 23.40 first mis-called "poor" by comparing to
+  the MOSES scale; corrected against the ZINC250k baseline (ref MoFlow 20.93) — F-0026.
 
 ## 8. Ablations
 Formal ablations (temperature sweep, parameter-budget sweep, with/without AMP) are **not

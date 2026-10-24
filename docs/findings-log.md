@@ -1,4 +1,16 @@
-﻿## F-0031 | 2026-10-24 | Molek WIRED into /v1 + research paper/benchmark/model-card written
+﻿## F-0032 | 2026-10-24 | Molek paper FORMAT-AUDITED against blueprint (Stan: no published mistakes)
+
+- Re-verified EVERY number vs source JSONs (docs/results/molek-30m-D3-eval.json,
+  molek-30m-distribution.json): validity 99.95/novelty 100/uniq 99.99/abs 99.94,99.94;
+  FCD 23.3965->23.40; IntDiv 0.9075->0.908; IntDiv2 0.8996->0.900; SNN 0.1962->0.196. All correct.
+- Reformatted to match blueprint EXACTLY:
+  * Hypotheses: Main + falsifiable/quantified H1(±1pp)/H2(<=1.5x FCD)/H3 (RESEARCH_THESIS style).
+  * Experiments: EXP-MOLEK-001/002/003 with full EXPERIMENT_PROTOCOL field set (ID, RQ, hypo,
+    model, dataset ver, tokenizer, method, hyperparams, hardware, seed, baseline, eval suite,
+    expected, actual, conclusion, next action).
+  * Added Key findings + Failed/negative experiments (protocol rule 'record failed experiments').
+- All 12 required publication sections present (RQ->reproducibility). Measured-only (G7).
+## F-0031 | 2026-10-24 | Molek WIRED into /v1 + research paper/benchmark/model-card written
 
 - Wired: serving/runtimes/molek_runtime.py loads epoch-197 ckpt (reconstructed params) +
   pinned generate_mols/check_validity -> real {smiles,qed,logp} for /v1 generate-molecule.
@@ -429,6 +441,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 
