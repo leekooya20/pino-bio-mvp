@@ -1,0 +1,15 @@
+{
+  "model": "molek-30m",
+  "snapshot": "model_snapshot_epoch_197",
+  "n_gen": 30000,
+  "temperature": 0.85,
+  "reference_set": "zinc250k test split (NOT the MOSES benchmark)",
+  "note": "FCD via fcd_torch (= MOSES FCD metric); IntDiv/SNN via RDKit. NOT a MOSES leaderboard entry (Molek trained on zinc250k). Frag/Scaf deferred (moses pkg py3.13-incompatible). G7.",
+  "metrics": {
+    "FCD/Test": 23.3965,
+    "IntDiv": 0.9075,
+    "IntDiv2": 0.8996,
+    "SNN/Test": 0.1962
+  },
+  "generated_at": "2026-10-24T04:53:06+0000"
+}
