@@ -1,5 +1,11 @@
 # Molek-30M — distributional metrics (rung 2)
 
+> **Correction (2026-10-24, docs review):** "faithfully reproduces MoFlow on FCD" / "matches the reference"
+> overstates it. 23.40 vs 20.93 is ~12% worse (lower is better). That is within the pre-declared ≤1.5×
+> tolerance (ratio 1.12), but it is not a match. Raw validity is also 0% vs 63.11% published for MoFlow (GDSS 2022,
+> Table 2), so faithfulness is not yet established. The original text below is kept as recorded.
+
+
 **Date:** 2026-10-24 · **Checkpoint:** epoch 197 · **n_gen:** 30,000 · temp 0.85
 **Reference:** zinc250k test split (NOT the MOSES benchmark — Molek trained on zinc250k)
 **Tools:** FCD via `fcd_torch` (= the MOSES FCD metric); IntDiv/SNN via RDKit.
