@@ -24,6 +24,19 @@ subprocess.run(["bash", "-lc",
 
 os.chdir("/kaggle/GDSS")
 
+# (0) run-only device patch: GDSS's VESDE indexes a CPU tensor (discrete_sigmas) with a CUDA
+#     index -> fine on torch 1.10, a RuntimeError on torch 2.x. Move to device BEFORE indexing.
+subprocess.run(["bash", "-lc", r"""
+python - <<'PY'
+p = '/kaggle/GDSS/sde.py'
+s = open(p).read()
+s = s.replace('self.discrete_sigmas[timestep - 1].to(t.device)',
+              'self.discrete_sigmas.to(t.device)[timestep - 1]')
+open(p, 'w').write(s)
+print('patched sde.py VESDE device indexing (run-only)')
+PY
+"""], check=True)
+
 # (1) build the kekulized npz GDSS's loader needs for init_flags (from its in-repo zinc250k.csv)
 subprocess.run(["python", "data/preprocess.py", "--dataset", "ZINC250k"], check=True)
 
