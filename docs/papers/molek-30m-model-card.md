@@ -37,11 +37,15 @@ agricultural property-conditioning head (crop-protection chemistry) in Project K
   (py3.13 + eval compat); see `patches/`
 
 ## Evaluation (measured)
-- Corrected validity **99.95%** / novelty **100%** / uniqueness **99.99%**: matches ref MoFlow on these
-  corrected metrics (they saturate near 100%, so they separate models poorly)
-- Uncorrected validity **0%**; published MoFlow without correction is 63.11% (GDSS 2022, Table 2), so this is
-  unexplained and under investigation, not "by design"
-- FCD **23.40**, lower is better (ref 20.93, ~12% worse; GDSS 15.74 in our same harness), SNN 0.196, IntDiv 0.908
+- Corrected validity **99.95%** is **fragment-salvage** (F38): correction shatters the over-valent decode and
+  `valid_mol_can_with_seg(largest_connected_comp=True)` keeps the largest fragment — 100% of the "valid" set is
+  salvaged, 0% is valid as generated. Novelty **100%** / uniqueness **99.99%** are therefore computed **over the
+  salvaged-fragment set**, not over genuinely valid molecules.
+- Uncorrected validity **0%**; published MoFlow without correction is 63.11% (GDSS 2022, Table 2). **Resolved (F38):**
+  the 0% is real model behavior (raw decodes are over-valent), reproduced on the checkpoint — not "by design", and
+  not a tooling artifact (RDKit-version refutation, F36).
+- FCD **23.40**, lower is better (ref 20.93, ~12% worse; GDSS 15.74 in our same harness), SNN 0.196, IntDiv 0.908 —
+  all over the salvaged-fragment set (F38)
 - Full report: `docs/papers/molek-30m-benchmark.md`
 
 ## Intended Uses
@@ -56,8 +60,9 @@ agricultural property-conditioning head (crop-protection chemistry) in Project K
 
 ## Limitations
 - Mid-pack distributional fidelity (FCD); diffusion architectures lead.
-- Relies on valency correction (raw validity 0% in our evaluation vs 63.11% published for MoFlow; under
-  investigation).
+- Relies on valency correction, and the "corrected" 99.95% is fragment-salvage of the largest connected component
+  (raw validity 0%; 100% salvaged), so Novelty/Uniqueness/FCD are all over the salvaged set, not genuinely valid
+  molecules (F38).
 - No agri-conditioning or wet-lab validation yet.
 
 ## Reproducibility

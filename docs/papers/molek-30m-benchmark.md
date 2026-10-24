@@ -6,7 +6,12 @@ temperature 0.85 · **Seed:** 20261023 · All numbers measured (G7).
 
 ## 1. Generation quality — dual report (M-MOFLOW-4)
 
-| Metric | Corrected | Uncorrected (raw) | Reference MoFlow (corr.) |
+**F38 caveat:** the "Corrected" column is **fragment-salvage** — correction shatters the over-valent decode and
+`valid_mol_can_with_seg(largest_connected_comp=True)` keeps the largest fragment. 100% of the corrected set is
+salvaged (0% valid as generated), so every row below (novelty, uniqueness, and the distribution metrics further
+down) is computed over the salvaged-fragment set, not over genuinely valid molecules.
+
+| Metric | Corrected (fragment-salvage, F38) | Uncorrected (raw) | Reference MoFlow (corr.) |
 |---|---|---|---|
 | Validity | **99.95%** (sd 0.02) | 0.00% (sd 0) | 100.00% |
 | Novelty | **100.00%** (sd 0.00) | 0.00% | 100.00% |

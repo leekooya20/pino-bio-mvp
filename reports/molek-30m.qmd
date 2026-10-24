@@ -13,7 +13,7 @@ pinobio:
   kind: paper
   status: result
   hypotheses: [H1, H2, H3]
-  key_finding: "A from-scratch MoFlow replica at 29,049,444 params trained on a single free T4 matches the full reference MoFlow on ZINC250k on the corrected metrics (validity 99.95%, novelty 100%, uniqueness 99.99%); FCD 23.40 is ~12% worse than the reference 20.93 (lower is better), within the pre-declared 1.5x tolerance; raw validity 0% vs 63.11% published for MoFlow is unexplained (under investigation). Honest baseline, not distributional SOTA — MoFlow-family is mid-pack on FCD where diffusion leads."
+  key_finding: "A from-scratch MoFlow replica at 29,049,444 params trained on a single free T4 (4.49x fewer params than the measured 130.3M reference MoFlow; F37). Its 'corrected' metrics (validity 99.95%, novelty 100%, uniqueness 99.99%; FCD 23.40, ~12% worse than the reference 20.93) are all FRAGMENT-SALVAGE (F38): raw validity is 0% (over-valent decodes, reproduced on the checkpoint), and the 99.95% keeps only the largest connected fragment, so these are over the salvaged set, not genuinely valid molecules. Honest baseline, not distributional SOTA — MoFlow-family is mid-pack on FCD where diffusion leads."
   slug: Molek-30M-MoFlow-Replica-ZINC250k
   review: draft
 format:
@@ -64,7 +64,8 @@ reproduces the reference MoFlow's ZINC250k generation quality within measurement
 **H1 (generation quality).** Corrected validity, novelty, and uniqueness each within **±1
 percentage point** of the reference MoFlow (≈100% / 100% / ~100%).
 
-**H2 (distributional fidelity).** Despite ~25× fewer parameters, FCD stays the same order
+**H2 (distributional fidelity).** Despite **4.49× fewer parameters** (reference MoFlow measured at
+130.3M vs our 29.0M; F37 — the earlier "~25×" was unsourced and wrong), FCD stays the same order
 as the reference (20.93) — specifically **≤ 1.5× the reference FCD** — not catastrophic.
 
 **H3 (correction dependence).** Uncorrected (raw) validity is near-zero, reflecting
@@ -209,9 +210,11 @@ results `docs/results/molek-30m-*.{md,json}`; patches M-MOFLOW-1..13 in `patches
 ## 13. Conclusion
 
 Molek-30M is a compute-efficient MoFlow-class replica: it matches the reference on the corrected
-generation metrics and stays within the pre-declared FCD tolerance (~12% worse), at ~25× fewer
-parameters on a free GPU. Its 0% raw validity (vs 63.11% published) is unexplained, so faithfulness
-is not yet established. An honest
+generation metrics and stays within the pre-declared FCD tolerance (~12% worse), at **4.49× fewer**
+parameters (measured 130.3M reference vs 29.0M; F37) on a free GPU. But those "corrected" metrics are
+**fragment-salvage** (F38): raw validity is 0% (over-valent decodes, reproduced on the checkpoint) and the
+99.95% keeps only the largest connected fragment, so faithfulness as a valid-molecule generator is not
+established. An honest
 baseline (not distributional SOTA) and the foundation for agricultural property-conditioned
 generation.
 

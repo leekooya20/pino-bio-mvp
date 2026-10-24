@@ -26,11 +26,12 @@ MODELS: list[dict] = [
         # capability metric. Distribution over 30k gens vs the zinc250k test split.
         # Never blended with served-model numbers (G7).
         "metrics": [
-            ["Validity (corrected)", "99.95%", "10k x 5 samples, temp 0.85"],
-            ["Novelty", "100%", "Absent from the 224,568 training molecules"],
-            ["Uniqueness", "99.99%", "Distinct among generations"],
-            ["FCD/Test", "23.40", "fcd_torch vs zinc250k test (ref MoFlow 20.93)"],
-            ["IntDiv", "0.908", "Internal diversity (RDKit)"],
+            ["Validity (raw)", "0%", "Decodes are over-valent; 0% valid as generated (F38)"],
+            ["Validity (corrected)", "99.95%", "Fragment-salvage: largest connected fragment after correction (valid_mol_can_with_seg); 100% salvaged, not valid as generated (F38)"],
+            ["Novelty", "100%", "Over the salvaged-fragment set (F38); absent from the 224,568 training molecules"],
+            ["Uniqueness", "99.99%", "Over the salvaged-fragment set (F38)"],
+            ["FCD/Test", "23.40", "Over the salvaged-fragment set (F38); fcd_torch vs zinc250k test (ref MoFlow 20.93)"],
+            ["IntDiv", "0.908", "Over the salvaged-fragment set (F38); internal diversity (RDKit)"],
         ],
         "metrics_source": "docs/results/molek-30m-{D3-eval,distribution}.json",
     },
