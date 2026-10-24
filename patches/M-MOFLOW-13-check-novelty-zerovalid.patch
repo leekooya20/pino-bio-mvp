@@ -1,0 +1,10 @@
+diff --git a/mflow/models/utils.py b/mflow/models/utils.py
+--- a/mflow/models/utils.py
++++ b/mflow/models/utils.py
+@@ -296,5 +296,6 @@
+ def check_novelty(gen_smiles, train_smiles, n_generated_mols): # gen: say 788, train: 120803
+     if len(gen_smiles) == 0:
+         novel_ratio = 0.
++        abs_novel_ratio = 0.  # M-MOFLOW-13 (PinoBio): ref leaves this unset -> UnboundLocalError on 0 valid; needed for honest uncorrected eval (M-MOFLOW-4)
+     else:
+         duplicates = [1 for mol in gen_smiles if mol in train_smiles]  # [1]*45
