@@ -3,7 +3,9 @@
 > **Correction (2026-10-24, docs review):** this record says raw validity 0% is "MoFlow-by-design" and that
 > "the reference itself always reports corrected numbers". Both are contradicted by published data: MoFlow's
 > validity without correction on ZINC250k is **63.11%** (GDSS, Jo et al. 2022, Table 2). The 0% is therefore
-> unexplained and under investigation (likely the stricter modern-RDKit evaluation path described below).
+> unexplained and under investigation. The "stricter modern-RDKit" explanation below was TESTED and refuted:
+> MoFlow's `valid_mol` behaves identically under RDKit 2022.09.5 and 2026.09.1 (accepts valid, rejects all
+> over-valent), so the 0% is not an RDKit-version artifact; it needs a model rerun to diagnose.
 > Also, high corrected novelty/uniqueness does not by itself prove the model learned the distribution: valency
 > correction applied to poor decodes can still yield novel, unique molecules. FCD (23.40 vs 20.93) is the
 > distribution-level evidence. The original text below is kept as recorded.

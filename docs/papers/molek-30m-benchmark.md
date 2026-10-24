@@ -15,7 +15,7 @@ temperature 0.85 · **Seed:** 20261023 · All numbers measured (G7).
 | Abs. uniqueness | 99.94% (sd 0.02) | 0.00% | — |
 
 Per-experiment valid counts (of 10,000): 9996, 9998, 9994, 9990, 9995.
-Uncorrected 0%: MoFlow does rely on valency correction, but published MoFlow validity without correction on ZINC250k is **63.11%** (GDSS, Jo et al. 2022, Table 2), so a 0% raw result is not explained by the architecture alone. Likely cause: the evaluation environment (stricter modern-RDKit sanitization, see `docs/results/molek-30m-D3.md`); it may also be the replica. **Under investigation.**
+Uncorrected 0%: MoFlow does rely on valency correction, but published MoFlow validity without correction on ZINC250k is **63.11%** (GDSS, Jo et al. 2022, Table 2), so a 0% raw result is not explained by the architecture alone. The "stricter modern-RDKit sanitization" explanation was tested and does **not** hold: MoFlow's own `valid_mol` accepts valid molecules and rejects every over-valent one **identically** under RDKit 2022.09.5 and 2026.09.1 (research, 2026-10-24; MoFlow `valid_mol`/`construct_mol` verbatim, no model). So the 0% is **not** an RDKit-version artifact. It is **unexplained**, pending a model rerun: the likeliest remaining cause is that Molek's raw decode produces over-valent graphs far more often than published MoFlow (which correction then masks). Note too that the 63.11% figure (GDSS 2022) may use a different validity definition than MoFlow's strict `valid_mol`. **Under investigation.**
 
 ## 2. Distributional metrics (30k generations vs ZINC250k test)
 
