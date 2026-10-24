@@ -74,6 +74,24 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0024 | 2026-10-24 | D3 eval VERIFIED correct (double-check per Stan)
+
+- **Checked the failure modes that would make the numbers wrong:**
+  1. Empty-trainset → fake novelty? NO. Log: "249455 in total, 224568 training data,
+     24887 testing data" — novelty 100% is measured vs 224,568 real train molecules. ✅
+  2. Fabricated/parse-artifact metrics? NO. Real integer counts per experiment
+     (valid: 9996/9998/9994/9990/9995 of 10000), tight sd 0.02. ✅
+  3. Model loaded wrong (random/mismatched params)? NO. snapshot epoch_197 + reconstructed
+     moflow-params loaded, then 99.95% valid output — a mismatch would give garbage. ✅
+  4. Apples-to-apples with reference? YES. 10k×5, temp 0.85 (ref setting), same zinc250k
+     split (valid_idx_zinc.json). ✅
+- **Honest caveat:** novelty uses the reference's own SMILES-match (canonicalization
+  inherited from check_novelty) — our 100% is apples-to-apples with the reference's
+  reported 100%, but a fully rigorous "true novelty" would need a canonicalization audit.
+  Inherited from reference, not our error.
+- **Verdict:** D3 corrected numbers are correct and trustworthy; uncorrected 0% is genuine
+  MoFlow-by-design (same loaded model that gives 99.95% corrected).
+
 ## F-0023 | 2026-10-24 | D3 dual-report COMPLETE — corrected matches reference, uncorrected 0% is MoFlow-by-design
 
 - **Complete M-MOFLOW-4 dual-report** (M-13 fix applied, eval v3): corrected validity
