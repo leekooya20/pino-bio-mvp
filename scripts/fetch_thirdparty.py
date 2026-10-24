@@ -68,7 +68,7 @@ def main() -> int:
         # Apply our documented modification patches (never silent, one file per mod ID).
         patches_dir = ROOT / "patches"
         if name == "moflow" and patches_dir.exists():
-            for bf in sorted(patches_dir.glob("*.patch")):
+            for bf in sorted(patches_dir.glob("M-MOFLOW-*.patch")):
                 try:
                     sh(["git", "apply", "--check", str(bf)], cwd=dest)   # fails loudly if context drifted
                     sh(["git", "apply", str(bf)], cwd=dest)
@@ -77,6 +77,21 @@ def main() -> int:
                     # likely already applied on a re-run — verify reversibility as proof
                     sh(["git", "apply", "--reverse", "--check", str(bf)], cwd=dest)
                     print(f"ok  {bf.name} already applied")
+
+        # M-MOSES-1 (py3.13): the moses package ships its own SA_Score/sascorer.py with
+        # `from rdkit.six import iteritems`; modern RDKit (>=2024) removed rdkit.six. Same
+        # class of fix as M-MOFLOW-9 but for the moses copy. Robust text replace (the file
+        # is the classic stable sascorer) rather than a context-sensitive git patch.
+        if name == "moses":
+            sca = dest / "moses" / "metrics" / "SA_Score" / "sascorer.py"
+            if sca.exists():
+                txt = sca.read_text(encoding="utf-8")
+                if "from rdkit.six import iteritems" in txt:
+                    txt = txt.replace(
+                        "from rdkit.six import iteritems",
+                        "iteritems = lambda d: d.items()  # M-MOSES-1 (py3.13: rdkit.six removed)")
+                    sca.write_text(txt, encoding="utf-8")
+                    print("ok  applied M-MOSES-1 (sascorer rdkit.six) to moses")
 
 
     (TP / "PINNED.json").write_text(json.dumps(pinned, indent=2), encoding="utf-8")
