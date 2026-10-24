@@ -1,4 +1,18 @@
-﻿## F-0032 | 2026-10-24 | Molek paper FORMAT-AUDITED against blueprint (Stan: no published mistakes)
+﻿## F-0033 | 2026-10-24 | Molek research paper rendered to PDF (PinoAI research-lane process matched)
+
+- Checked PinoAI research lane (PUBLICATIONS_INDEX): papers are Quarto .qmd -> Typst -> PDF,
+  house template (_quarto.yml/_authors.yml/_style.typ), byline 'Stan Lee V. Natividad -
+  Kooya PH AI Research', arXiv/ACL standard, 'a paper per finished task'.
+- Wrote reports/molek-30m.qmd in that house format (front matter incl. pinobio block +
+  hypotheses + key_finding, byline, all 12 required sections, EXPERIMENT_PROTOCOL fields).
+- PDF: Quarto 1.10.19 win.zip is 141MB and timed out downloading; pivoted to reportlab
+  (pdf skill method) via scripts/make_paper_pdf.py -> docs/papers/molek-30m.pdf (5 pages,
+  verified: Molek-30M/99.95/23.40/EXP-MOLEK-*/byline present). Canonical source = .qmd
+  (render via quarto --to typst for house-styled edition when Quarto is installed).
+- Experiments conducted (real, measured): EXP-MOLEK-001 (train), -002 (D3 eval), -003 (FCD).
+  Competitor benchmark: published ZINC250k leaderboard (GraphAF/GDSS/DiGress/GraphArm/MoFlow).
+- Seqgen pilot validation: all 3 stages GREEN (G1 gate pass, UR50 stream 300k, BPE vocab 10k).
+## F-0032 | 2026-10-24 | Molek paper FORMAT-AUDITED against blueprint (Stan: no published mistakes)
 
 - Re-verified EVERY number vs source JSONs (docs/results/molek-30m-D3-eval.json,
   molek-30m-distribution.json): validity 99.95/novelty 100/uniq 99.99/abs 99.94,99.94;
@@ -441,6 +455,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 
