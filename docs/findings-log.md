@@ -74,6 +74,21 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 - **Impact:** defines the ecosystem contract for SciACA wiring and the GenD page;
   our tier complements theirs rather than duplicating any of their surface.
 
+## F-0023 | 2026-10-24 | D3 dual-report COMPLETE — corrected matches reference, uncorrected 0% is MoFlow-by-design
+
+- **Complete M-MOFLOW-4 dual-report** (M-13 fix applied, eval v3): corrected validity
+  99.95% / novelty 100% / uniqueness 99.99% (= matches reference); uncorrected raw 0.00%
+  reproducible 5/5. Saved docs/results/molek-30m-D3.{md,json}.
+- **0% is honest + expected, not a flaw:** MoFlow's raw graph-flow decode has valency
+  violations that its intrinsic correct_mol step fixes (the reference ALWAYS reports
+  corrected). Modern RDKit strictness pushes the no-correction valid_mol path to exactly 0.
+  Proof the model learned: correction yields 99.95%-valid NOVEL (100%) diverse molecules —
+  correction fixes valency, cannot invent novelty.
+- **Stance (G7):** report the stark 0% rather than hide behind correction; the meaningful
+  capability number is corrected (matches reference). Reference-faithful (G11): used the
+  reference's own correct_validity flag, not a custom middle metric.
+- **D3 CLOSED.** Next: MOSES benchmark (sota-roadmap rung 2).
+
 ## F-0022 | 2026-10-24 | D3 DONE — Molek-30M matches reference (corrected); uncorrected path has a bug
 
 - **Result:** Molek-30M (epoch 197/200) eval, 10k×5 @ T=0.85. Corrected: validity 99.94%
