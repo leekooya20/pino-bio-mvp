@@ -26,17 +26,25 @@ TRAIN_FA = Path(_os.environ.get(
     str(ROOT / "data" / "external" / "uniref50_2021_04" / "ur50_subsample.train.fasta")))
 OUT_DIR = ROOT / "artifacts" / "seqgen-tokenizer"
 EOS = "<|endoftext|>"              # [REF] sequence delimiter used by ProtGPT2
-VOCAB_SIZE = 50_000               # target; realized size recorded in run_meta (G7)
+# Proteins use a 25-letter alphabet, so a GPT2-sized 50k vocab is overkill AND OOMs the
+# BPE trainer (F-0030). 10k is ample for protein subwords; and you don't need the whole
+# corpus to learn merges — cap the training sample (standard practice). Both env-tunable.
+VOCAB_SIZE = int(_os.environ.get("SEQGEN_VOCAB", 10_000))      # [P-PTGPT2-2] protein-sized
+BPE_MAX_SEQ = int(_os.environ.get("SEQGEN_BPE_MAXSEQ", 100_000))  # cap sample for memory
 
 
-def iter_sequences(path: Path):
+def iter_sequences(path: Path, max_seq: int | None = None):
     seq: list[str] = []
+    n = 0
     with path.open("r", encoding="utf-8", errors="replace") as f:
         for line in f:
             if line.startswith(">"):
                 if seq:
                     yield "".join(seq)
                     seq = []
+                    n += 1
+                    if max_seq and n >= max_seq:
+                        return
             else:
                 seq.append(line.strip())
         if seq:
@@ -61,8 +69,8 @@ def main() -> int:
         special_tokens=[EOS, "<unk>"],
         show_progress=True,
     )
-    print(f"training BPE on {TRAIN_FA} (target vocab {VOCAB_SIZE:,}) ...")
-    tok.train_from_iterator(iter_sequences(TRAIN_FA), trainer=trainer)
+    print(f"training BPE on {TRAIN_FA} (vocab {VOCAB_SIZE:,}, sample cap {BPE_MAX_SEQ:,}) ...")
+    tok.train_from_iterator(iter_sequences(TRAIN_FA, max_seq=BPE_MAX_SEQ), trainer=trainer)
     out = OUT_DIR / "tokenizer.json"
     tok.save(str(out))
 

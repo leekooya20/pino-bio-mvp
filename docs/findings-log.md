@@ -1,4 +1,13 @@
-﻿## F-0029 | 2026-10-24 | G1 gate fix — UniProt /help/license is a JS SPA (raw-regex impossible); verify pinned entry + liveness
+﻿## F-0030 | 2026-10-24 | Seqgen validate v2 — streaming + G1 gate PASS; BPE OOM fixed
+
+- WINS: G1 gate (pinned CC BY 4.0 + source-live HEAD 200) = pass; UR50 streaming early-stop
+  WORKS — 300,000 seqs in 28s (train 270k/eval 30k), no 8GB download. Streaming approach proven.
+- FAIL: BPE tokenizer SIGKILL:9 = OOM (50k vocab on 270k seqs on a CPU kernel).
+- FIX: proteins = 25-letter alphabet -> 50k vocab overkill; dropped to 10k (SEQGEN_VOCAB) +
+  cap BPE training sample to 100k seqs (SEQGEN_BPE_MAXSEQ) — standard practice, you don't need
+  the whole corpus to learn merges. Both env-tunable, documented P-PTGPT2-2.
+- De-risk value proven again: caught OOM on a cheap CPU validate before the expensive train.
+## F-0029 | 2026-10-24 | G1 gate fix — UniProt /help/license is a JS SPA (raw-regex impossible); verify pinned entry + liveness
 
 - Seqgen validate run errored: G1 gate failed because UniProt /help/license returns 200 but
   is a JS-rendered SPA -> raw HTML has NO license text -> regex miss (same JS-render limit
@@ -409,6 +418,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 
