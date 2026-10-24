@@ -1,4 +1,15 @@
-﻿## F-0027 | 2026-10-24 | REA placed in arsenal (Stan delegated) — closed/binary edge, armed not fired
+﻿## F-0028 | 2026-10-24 | Seqgen data source resolved — UR50 2021_04 archived as tar bundle; pilot uses current UR50 streaming
+
+- UR50 2021_04 direct fasta 404s; the archived release is a 40GB+ uniref2021_04.tar.gz
+  bundle (not a direct uniref50.fasta.gz). Not worth it for a pilot.
+- Current UniRef50 reachable: 8.18 GB gz. PILOT uses it via STREAMING EARLY-STOP
+  (scripts/prepare_seqgen_pilot.py): decompress on the fly, collect ~1.5M seqs, stop —
+  never downloads all 8GB. G1 live license gate first; G10 sha256+counts; seed 20261023.
+- HONEST (G7/G11): pilot corpus is CURRENT UR50, NOT 2021_04 — documented in manifest;
+  exact-version reserved for a faithful run (infeasible on T4 anyway). Same class of
+  data-source adaptation as F-0005 (zinc DeepChem 403 -> mirror).
+- Config validated vs NeurIPS 2024 compute-optimal table (66M = d640/10H/10L = ours).
+## F-0027 | 2026-10-24 | REA placed in arsenal (Stan delegated) — closed/binary edge, armed not fired
 
 - REA (morluto/rea, MIT; drives Ghidra/IDA/Hopper/JADX/Binwalk on CLOSED binaries) placed
   in docs/rea-tool.md. Rule: open source -> read it (G11, REA says skip source repos);
@@ -386,6 +397,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 
