@@ -1,4 +1,21 @@
-﻿## F-0038 | 2026-10-24 | Farm-knob: ChEBI OBO uses RO:0000087, not literal has_role (C-CHEBI-3)
+﻿## F-0039 | 2026-10-24 | Farm-knob (train a) COMPLETE — agri moat trained + measured
+
+- farmknob-train-r1 v3 COMPLETE. G1 gate pass (CC BY 4.0 live). Agri set from the agrochemical
+  (33286) + pesticide (25944) has_role subtrees: 72 roles, 1,212 agrochemical molecules, 963 with
+  valid RDKit descriptors. obo sha256 1fd3e7d0..., sdf sha256 74e1be39...
+- Farm-knob steering target (M-MOFLOW-3, pure stats, N=963): mean MolWt 317.98, cLogP 2.57,
+  TPSA 67.42, HBD 1.03, HBA 4.27, RotBonds 4.07, AromaticRings 1.26, F 0.57, Cl 0.60, Br 0.04;
+  p5-p95 bands recorded per descriptor (e.g. MolWt [115, 554], cLogP [-1.79, 6.17]). The halogen
+  propensity (F/Cl present) is a real agrochemical signature. -> docs/results/farmknob-target.json
+- Intent-mol head (N-NLP-1): frozen MiniLM -> our MLP, 842 pairs (758 train / 84 eval). Per-dim
+  recovery MAE (standardized z): best cLogP 0.40 / F 0.39 / Br 0.40; worst RotBonds 0.68 / HBA 0.67.
+  OOD gate threshold p95 0.928. Honest, per-dim, NOT blended with served models (G7).
+  -> docs/results/intent-mol-run-meta.json + artifacts/intent-mol/intent_mol_head.pt (534KB).
+- LIMITATION (honest): only 963 agrochemicals in ChEBI with structures -> a small supervision set;
+  intent-mol recovery is modest (~0.4-0.68 z). The moat is the DATA+target definition, not yet a
+  strong text->descriptor model. Wet-lab/field data would be the real lever (no partner yet).
+
+## F-0038 | 2026-10-24 | Farm-knob: ChEBI OBO uses RO:0000087, not literal has_role (C-CHEBI-3)
 
 - Farm-knob v2 still gave 0 molecules (but 72 roles now — C-CHEBI-2 union worked; SMILES 52,866
   — C-CHEBI-1 worked). Diagnosed via HTTP Range reads of the live chebi.obo (no 259MB download):
