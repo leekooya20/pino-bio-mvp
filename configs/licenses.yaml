@@ -423,6 +423,80 @@ bio_tools:
     hosted_by_us: false
     notes: "SERVED; we dock OUR generated molecules against targets (pose + confidence). Docking sits on the molecule-design side (FLORA is protein-analysis-only). Poses/scores cited as DiffDock's, never blended (G7)."
 
+  - id: genmol
+    function: "masked discrete-diffusion, fragment-based molecule generation (SAFE repr) — SERVED alt beside Molek AND our diffusion study-reference (Molek FCD frontier lever)"
+    role: generation_core
+    phase: "P2 (NVIDIA-BioNeMo audit 2026-10-24; Stan decision: served alt + diffusion reference)"
+    license: "code Apache-2.0 + weights NVIDIA Open Model License (BOTH verified live 2026-10-24: genmol/LICENSE/license_code.txt = Apache-2.0; license_weights.txt = NOML, commercially usable + derivatives OK + no output-ownership claim, attribution notice required)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/genmol"
+    sizes: "small (fragment diffusion; SAFE)"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "SERVED alt generator; ALSO the G11 recipe reference for OUR own diffusion molecule generator (the real FCD lever vs Molek's flow). NOML weights need the 'Licensed by NVIDIA under NVIDIA Open Model License' notice + Trustworthy-AI compliance; revocable if safety guardrails circumvented. Its numbers cited, never blended with Molek's (G7)."
+
+  - id: rnapro
+    function: "RNA 3D folding (SOTA; Stanford RNA 3D Folding Kaggle winners) — NEW MODALITY (RNA), Stan decision 2026-10-24 = OURS"
+    role: generation_core
+    phase: "P3 (RNA modality — scope addition, Stan-authorized 2026-10-24)"
+    license: "Apache-2.0 (NVIDIA + ByteDance) + MIT portions (RibonanzaNet2) — BOTH verified live 2026-10-24: RNAPro/LICENSE"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/RNAPro"
+    sizes: "RNA folding model"
+    commercial_ok: true
+    derivative_ok: true
+    hosted_by_us: false
+    notes: "RNA is a NEW Katala modality (Stan: in-scope OURS). RNAPro = the study reference (permissive). Build-from-scratch decision + data sources (RNA 3D structures) deferred; registered now so it survives G1 before any use."
+
+  - id: reasyn
+    function: "molecule synthesis-pathway prediction (Chain-of-Reaction) — synthesizability gate for our optimize/filter loop"
+    role: generation
+    phase: "P2 (NVIDIA-BioNeMo audit 2026-10-24)"
+    license: "TBD — verify code AND weights live at use (NVIDIA split-license pattern); do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/ReaSyn"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope (synthesizability check on generated agri molecules). License pending live verification before any use."
+
+  - id: jepa-dna
+    function: "genomic foundation model (generative + joint-embedding) — DNA-gen modality (beside Evo2/CodonFM)"
+    role: generation_core
+    phase: "P3"
+    license: "TBD — verify code AND weights live at use; do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/JEPA-DNA"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope (DNA-gen). License pending live verification."
+
+  - id: nvdock
+    function: "diffusion pocket docking (all-atom, known pocket) — SERVED alt to DiffDock in optimize loop"
+    role: generation
+    phase: "P2"
+    license: "TBD — verify code AND weights live at use; do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/nvDock"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope (docking when pocket known). License pending live verification."
+
+  - id: dualbind
+    function: "3D protein-ligand binding-affinity prediction — optimize/rank scorer"
+    role: generation
+    phase: "P2"
+    license: "TBD — verify code AND weights live at use; do NOT depend before license read (G1/G11)"
+    date_checked: "2026-10-24"
+    source: "github.com/NVIDIA-BioNeMo/dualbind"
+    commercial_ok: "TBD"
+    derivative_ok: "TBD"
+    hosted_by_us: false
+    notes: "Registered in scope (affinity scoring in generate->score loop). License pending live verification."
+
   - id: evo2
     function: "DNA/RNA/protein GENERATION foundation model (genome-scale design) — NEW modality (DNA gen); SERVED"
     role: generation_core

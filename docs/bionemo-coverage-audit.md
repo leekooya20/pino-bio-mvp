@@ -61,6 +61,21 @@ Nothing missing data-wise vs what we already use: their protein LMs train on **U
 for Seqgen), molecule models on **ZINC/SAFE** (we use ZINC250k for Molek), property/affinity on public
 sets. CodonFM/JEPA-DNA use large coding-sequence/genomic corpora — relevant if we pursue DNA-gen.
 
+## Correction (G7 honesty, 2026-10-24)
+On re-check of `configs/licenses.yaml`, several of these were **already registered** from the Katala
+master sync — I over-stated "missed" for them: **CodonFM** (bio_tools, NVIDIA Open Model), **Proteina-Complexa**
+(NVIDIA Open Model), **la-proteina** (NVIDIA Open Model), **Boltz-2** (Apache code / weights TBD). The
+**genuinely NEW misses** now registered this session: **GenMol, ReaSyn, JEPA-DNA, nvDock, dualbind** (+ KERMT,
+RNAPro to flag).
+
+## Decisions taken (Stan, 2026-10-24) + licenses verified live
+- **GenMol** → **served alt + our diffusion study-reference** (Molek FCD lever). License **VERIFIED**:
+  code Apache-2.0, weights NVIDIA Open Model (commercial OK + attribution). `licenses.yaml:genmol`.
+- **RNA (RNAPro)** → **IN SCOPE, OURS** (new modality, A9 in capability-map). License **VERIFIED**:
+  Apache-2.0 + MIT portions. `licenses.yaml:rnapro`. Task (fold vs gen) + data + replicate/serve TBD.
+- **ReaSyn / JEPA-DNA / nvDock / dualbind** → registered in scope, **license pending live verify** before use.
+- **KERMT (property pred)** → flag to FLORA (analysis). **RNAPro analysis-side** also flagged to FLORA handshake.
+
 ## What this changes for us (honest)
 - Our generative **core stays ours**: Molek (done) + Seqgen (training) are still the from-scratch,
   owned pieces. BioNeMo *serves* its generators; our edge is owned-small + agri farm-knob + honesty.
