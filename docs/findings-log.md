@@ -1,4 +1,16 @@
-﻿## F-0026 | 2026-10-24 | FCD CORRECTED — Molek matches MoFlow (I mis-scaled, fixed via baseline, G14)
+﻿## F-0027 | 2026-10-24 | REA placed in arsenal (Stan delegated) — closed/binary edge, armed not fired
+
+- REA (morluto/rea, MIT; drives Ghidra/IDA/Hopper/JADX/Binwalk on CLOSED binaries) placed
+  in docs/rea-tool.md. Rule: open source -> read it (G11, REA says skip source repos);
+  closed/binary -> REA. Clean-room only (G11 + IP/legality check, G1 mindset).
+- Where it's the unfair advantage: (1) served-artifact PROVENANCE AUDIT (does nvidia/
+  RFD4-Proteina container match open RosettaCommons source? trust edge, aligns G7/G8/G1);
+  (2) closed competitor agri/chem tool teardown (APK->JADX etc.) when a target exists;
+  (3) binary-only models/firmware.
+- Status: ARMED not fired — our whole stack is open (reading out-performs Ghidra here;
+  proved it by finding MoFlow FCD baseline from literature). No speculative Ghidra install.
+  Fires on a confirmed closed target + legality check.
+## F-0026 | 2026-10-24 | FCD CORRECTED — Molek matches MoFlow (I mis-scaled, fixed via baseline, G14)
 
 - **Correction of F-0025 over-alarm:** I called FCD 23.40 "poor" by comparing to the MOSES
   scale (good ~1). WRONG scale. Published zinc250k baselines (GLAD 2024): GraphAF 16.02,
@@ -374,5 +386,6 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
