@@ -13,7 +13,7 @@ pinobio:
   kind: paper
   status: result
   hypotheses: [H1, H2, H3]
-  key_finding: "A from-scratch MoFlow replica at 29,049,444 params trained on a single free T4 matches the full reference MoFlow on ZINC250k: corrected validity 99.95%, novelty 100%, uniqueness 99.99%, and FCD 23.40 (reference 20.93; within a 25x parameter reduction). Honest baseline, not distributional SOTA — MoFlow-family is mid-pack on FCD where diffusion leads."
+  key_finding: "A from-scratch MoFlow replica at 29,049,444 params trained on a single free T4 matches the full reference MoFlow on ZINC250k on the corrected metrics (validity 99.95%, novelty 100%, uniqueness 99.99%); FCD 23.40 is ~12% worse than the reference 20.93 (lower is better), within the pre-declared 1.5x tolerance; raw validity 0% vs 63.11% published for MoFlow is unexplained (under investigation). Honest baseline, not distributional SOTA — MoFlow-family is mid-pack on FCD where diffusion leads."
   slug: Molek-30M-MoFlow-Replica-ZINC250k
   review: draft
 format:
@@ -38,10 +38,12 @@ limitations · ethics · reproducibility. -->
 We present **Molek-30M**, a from-scratch replica of the MoFlow invertible-flow molecular
 graph generator, scaled to **29,049,444 parameters** (≤30M budget) and trained on a single
 free-tier GPU (Kaggle T4). On the ZINC250k benchmark, Molek-30M **matches the full
-reference MoFlow** on all standard generation metrics — corrected validity **99.95%**,
-novelty **100%**, uniqueness **99.99%** — and reproduces MoFlow's distributional behaviour,
-with a Fréchet ChemNet Distance (**FCD 23.40**) in line with the published reference
-(20.93) at a ~25× parameter reduction. We report every metric with and without validity
+reference MoFlow on the corrected generation metrics** — corrected validity **99.95%**,
+novelty **100%**, uniqueness **99.99%** — and reaches a Fréchet ChemNet Distance of
+**FCD 23.40**, ~12% worse than the published MoFlow reference (20.93; lower is better) and
+within our pre-declared ≤1.5× tolerance. Raw validity without correction is **0%**, versus
+**63.11%** published for MoFlow; this gap is unexplained and under investigation, so
+faithfulness to the reference is not yet established. We report every metric with and without validity
 correction, contextualise FCD against the published ZINC250k leaderboard, and state the
 honest finding that MoFlow-family models — Molek included — are mid-pack on distributional
 fidelity, where diffusion models lead. Molek-30M is the base for an agricultural-
@@ -98,14 +100,19 @@ without valency correction.
 
 Published ZINC250k numbers (GLAD/Kalousis 2024; GDSS/CDGS tables):
 
-| Model | Validity (%) ↑ | FCD ↓ | Family |
+Validity is **without correction** for every row (like-for-like). GraphAF+FC, GDSS and MoFlow rows: GDSS
+(Jo et al. 2022) Table 2; GraphArm and DiGress: as previously listed, not re-checked.
+
+| Model | Validity w/o corr. (%) ↑ | FCD ↓ | Family |
 |---|---|---|---|
-| GraphAF | 68.47 | 16.02 | autoregressive flow |
+| GraphAF+FC | 68.47 | 16.02 | autoregressive flow |
 | GDSS | 97.01 | 14.66 | diffusion (best FCD) |
 | GraphArm | 88.23 | 16.26 | autoregressive diffusion |
-| MoFlow (reference) | ~100 (corr.) | 20.93 | normalizing flow |
-| **Molek-30M (ours)** | **99.95 (corr.)** | **23.40** | normalizing flow (replica) |
+| MoFlow (reference) | 63.11 | 20.93 | normalizing flow |
+| **Molek-30M (ours)** | **0.00 (under investigation)** | **23.40** | normalizing flow (replica) |
 | DiGress | 91.02 | 23.06 | discrete diffusion |
+
+Molek's corrected validity (99.95%) is not comparable to this column.
 
 ## 7. Experiments
 
@@ -137,8 +144,8 @@ Each follows the `EXPERIMENT_PROTOCOL` field set.
 | Abs. uniqueness | 99.94% | 0.00% | — | — |
 
 Per-experiment valid /10,000: 9996, 9998, 9994, 9990, 9995.
-- **Conclusion:** H1 supported (within ±1 pp); H3 supported (raw 0% = MoFlow
-  correction-dependence). **Next:** EXP-MOLEK-003.
+- **Conclusion:** H1 supported (within ±1 pp; these corrected metrics saturate near 100%); H3 not
+  supported as stated (published MoFlow validity without correction is 63.11%; the 0% is unexplained). **Next:** EXP-MOLEK-003.
 
 ### EXP-MOLEK-003 — distributional fidelity (FCD / SNN / IntDiv)
 - **RQ:** does the replica reproduce MoFlow's distribution quality? **Hypothesis:** H2.
@@ -147,12 +154,14 @@ Per-experiment valid /10,000: 9996, 9998, 9994, 9990, 9995.
   20261023. **Baseline:** published (MoFlow 20.93; GDSS 14.66; GraphAF 16.02; DiGress 23.06).
 - **Expected (H2):** FCD ≤ 1.5× reference (≤ 31.4). **Actual:** FCD **23.40** (23.3965) ·
   SNN **0.196** · IntDiv **0.908** · IntDiv2 **0.900**; FCD ratio 23.40/20.93 = **1.12**.
-- **Conclusion:** H2 supported. Molek ≈ reference on FCD within scale-down; both mid-pack
+- **Conclusion:** H2 supported under the ≤1.5× tolerance (ratio 1.12), though ~12% worse than the
+  reference on FCD (lower is better); both mid-pack
   (diffusion leads). **Next:** farm-knob conditioning; diffusion arch for FCD frontier.
 
 ### Key findings
-1. Molek-30M matches reference MoFlow on validity/novelty/uniqueness (H1) and FCD (H2).
-2. Raw validity is 0% — MoFlow-by-design (H3); corrected is the capability metric.
+1. Molek-30M matches reference MoFlow on corrected validity/novelty/uniqueness (H1); FCD is within the
+   ≤1.5× tolerance but ~12% worse (H2).
+2. Raw validity is 0% vs 63.11% published for MoFlow (H3 not supported); unexplained, under investigation.
 3. MoFlow-family is mid-pack on distributional fidelity; diffusion is the frontier lever.
 
 ### Failed / negative experiments (recorded per protocol)
@@ -178,7 +187,7 @@ place for downstream binder tasks.
 ## 10. Limitations
 
 Mid-pack distributional fidelity (FCD 23.40; MoFlow-class ceiling — diffusion is the lever,
-not a Molek tune). Uncorrected validity 0% (intrinsic to MoFlow). Novelty uses the
+not a Molek tune). Uncorrected validity 0% (vs 63.11% published for MoFlow; unexplained, under investigation). Novelty uses the
 reference's own SMILES-match (apples-to-apples with reference; a rigorous "true novelty"
 needs a canonicalisation audit). Not agri-conditioned yet (farm-knob spec'd, not trained).
 No wet-lab validation (none claimed). FCD absolute values vary by implementation (same
@@ -199,8 +208,10 @@ results `docs/results/molek-30m-*.{md,json}`; patches M-MOFLOW-1..13 in `patches
 
 ## 13. Conclusion
 
-Molek-30M is a faithful, compute-efficient MoFlow replica — matching the reference on every
-standard ZINC250k metric including FCD, at ~25× fewer parameters on a free GPU. An honest
+Molek-30M is a compute-efficient MoFlow-class replica: it matches the reference on the corrected
+generation metrics and stays within the pre-declared FCD tolerance (~12% worse), at ~25× fewer
+parameters on a free GPU. Its 0% raw validity (vs 63.11% published) is unexplained, so faithfulness
+is not yet established. An honest
 baseline (not distributional SOTA) and the foundation for agricultural property-conditioned
 generation.
 

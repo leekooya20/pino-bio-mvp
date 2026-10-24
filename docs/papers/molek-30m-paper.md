@@ -13,10 +13,12 @@ Status: **preprint-draft, measured-only** (G7 — no claim exceeds a measured nu
 We present **Molek-30M**, a from-scratch replica of the MoFlow invertible-flow molecular
 graph generator, scaled to **29,049,444 parameters** (≤30M budget) and trained on a single
 free-tier GPU (Kaggle T4). On the ZINC250k benchmark, Molek-30M **matches the full
-reference MoFlow** on all standard generation metrics — corrected validity **99.95%**,
-novelty **100%**, uniqueness **99.99%** — and reproduces MoFlow's distributional
-behaviour, with a Fréchet ChemNet Distance (**FCD 23.40**) in line with the published
-MoFlow reference (20.93) at our reduced scale. We report every metric with and without
+reference MoFlow on the corrected generation metrics** — corrected validity **99.95%**,
+novelty **100%**, uniqueness **99.99%** — and reaches a Fréchet ChemNet Distance of
+**FCD 23.40**, ~12% worse than the published MoFlow reference (20.93; lower is better) and
+within our pre-declared ≤1.5× tolerance. Raw validity without correction is **0%**, versus
+**63.11%** published for MoFlow; this gap is unexplained and under investigation, so
+faithfulness to the reference is not yet established. We report every metric with and without
 validity correction (dual-report), contextualise FCD against the published ZINC250k
 leaderboard, and release the honest finding that MoFlow-family models — Molek included —
 are mid-pack on distributional fidelity, where diffusion models lead. Molek-30M is the base
@@ -77,15 +79,20 @@ measure.
 ## 6. Baselines
 Published ZINC250k numbers (GLAD/Kalousis 2024; GDSS/CDGS tables):
 
-| Model | Validity(%)↑ | FCD↓ |
+Validity is **without correction** for every row (like-for-like). GraphAF+FC, MoFlow and GDSS rows: GDSS
+(Jo et al. 2022) Table 2; GraphArm and DiGress: as previously listed, not re-checked.
+
+| Model | Validity w/o corr. (%)↑ | FCD↓ |
 |---|---|---|
-| GraphAF | 68.47 | 16.02 |
+| GraphAF+FC | 68.47 | 16.02 |
 | GraphDF | — | — |
-| **MoFlow (reference)** | ~100 (corr.) | **20.93** |
+| **MoFlow (reference)** | 63.11 | **20.93** |
 | GDSS | 97.01 | 14.66 |
 | DiGress | 91.02 | 23.06 |
 | GraphArm | 88.23 | 16.26 |
-| **Molek-30M (ours)** | **99.95** (corr.) | **23.40** |
+| **Molek-30M (ours)** | **0.00** (under investigation) | **23.40** |
+
+Molek's corrected validity (99.95%) is not comparable to this column.
 
 ## 7. Experiments
 Each experiment records the full field set required by `EXPERIMENT_PROTOCOL.md`.
@@ -125,8 +132,9 @@ Each experiment records the full field set required by `EXPERIMENT_PROTOCOL.md`.
   | Abs. uniqueness | 99.94% | 0.00% | — | — |
 
   Per-experiment valid counts /10,000: 9996, 9998, 9994, 9990, 9995.
-- **Conclusion:** **H1 supported** (all within ±1 pp). **H3 supported** (raw 0% = MoFlow
-  correction-dependence by design; reference always reports corrected).
+- **Conclusion:** **H1 supported** (all within ±1 pp; note these corrected metrics saturate near 100%).
+  **H3 not supported as stated:** MoFlow's published validity without correction is 63.11% (GDSS 2022,
+  Table 2), not near-zero, so the 0% is unexplained and under investigation.
 - **Next action:** EXP-MOLEK-003.
 
 ### EXP-MOLEK-003 — distributional fidelity (FCD / SNN / IntDiv)
@@ -140,13 +148,15 @@ Each experiment records the full field set required by `EXPERIMENT_PROTOCOL.md`.
 - **Expected outcome (H2):** FCD ≤ 1.5× reference (≤ 31.4).
 - **Actual results:** FCD/Test **23.40** (= 23.3965) · SNN/Test **0.196** · IntDiv **0.908** ·
   IntDiv2 **0.900**. FCD ratio vs ref = 23.40/20.93 = **1.12 ≤ 1.5**.
-- **Conclusion:** **H2 supported.** Molek ≈ reference MoFlow on FCD within scale-down; both
+- **Conclusion:** **H2 supported** under the pre-declared ≤1.5× tolerance (ratio 1.12), though Molek is ~12%
+  worse than the reference on FCD (23.40 vs 20.93; lower is better); both
   mid-pack on ZINC250k (diffusion leads, GDSS 14.66). Correction deferral (Frag/Scaf) noted.
 - **Next action:** train farm-knob (agri conditioning); diffusion architecture for FCD frontier.
 
 ### Key findings
-1. Molek-30M **matches reference MoFlow** on validity/novelty/uniqueness (H1) and FCD (H2).
-2. Raw validity is **0%** — MoFlow-by-design (H3); corrected is the capability metric.
+1. Molek-30M matches reference MoFlow on **corrected** validity/novelty/uniqueness (H1); FCD is within the
+   ≤1.5× tolerance but ~12% worse (H2).
+2. Raw validity is **0%** vs 63.11% published for MoFlow (H3 not supported); unexplained, under investigation.
 3. MoFlow-family is **mid-pack** on distributional fidelity; diffusion is the frontier lever.
 
 ### Failed / negative experiments (recorded per protocol)
@@ -175,7 +185,7 @@ sd 0.02%, novelty sd 0.00%. FCD is a single distributional estimate over 30k gen
 ## 10. Limitations
 - **Distributional fidelity is mid-pack** (FCD 23.40): MoFlow-class ceiling, not fixable by
   tuning Molek — diffusion architectures are the lever (roadmap).
-- **Uncorrected validity 0%**: intrinsic to MoFlow; corrected numbers are the capability.
+- **Uncorrected validity 0%**: vs 63.11% published for MoFlow; unexplained, under investigation.
 - **Novelty canonicalisation**: uses the reference's own SMILES-match (F-0024) — apples-to-
   apples with the reference, but a rigorous "true novelty" needs a canonicalisation audit.
 - **Not agri-conditioned yet**: the farm-knob (M-MOFLOW-3) is specified, not trained.
@@ -198,7 +208,9 @@ sd 0.02%, novelty sd 0.00%. FCD is a single distributional estimate over 30k gen
 - Patches M-MOFLOW-1..13 documented one-file-per-mod in `patches/`.
 
 ## 13. Conclusion
-Molek-30M is a **faithful, compute-efficient MoFlow replica** — it matches the reference on
-every standard ZINC250k metric including FCD, at ~25× fewer parameters on a free GPU. It is
+Molek-30M is a **compute-efficient MoFlow-class replica**: it matches the reference on the
+corrected generation metrics and stays within the pre-declared FCD tolerance (~12% worse), at
+~25× fewer parameters on a free GPU. Its 0% raw validity (vs 63.11% published) is unexplained,
+so faithfulness is not yet established. It is
 an honest baseline (not distributional SOTA) and the foundation for agricultural
 property-conditioned generation (next work).

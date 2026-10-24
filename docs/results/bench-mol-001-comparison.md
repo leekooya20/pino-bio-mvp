@@ -14,12 +14,15 @@ Molek used — so there is zero metric-implementation drift (G7).
 *(Published context, for reference only — NOT our measurement: GDSS 14.66, MoFlow 20.93, DiGress 23.06.)*
 
 ## Honest findings
-1. **Molek matches on validity / novelty / uniqueness / diversity** — all near-perfect, tied with GDSS.
+1. **Validity / novelty / uniqueness / diversity are near-perfect for both models.** These metrics saturate for
+   this task, so they do not separate the models. Molek's validity comes from valency correction (raw 0%).
 2. **GDSS (diffusion) leads distributional fidelity**: FCD 15.74 vs Molek 23.40. This is an
-   *architecture* gap (flow vs diffusion), not a Molek tuning issue — and it directly validates the
+   *architecture* gap (flow vs diffusion) — an inference, since Molek is also ~12% behind the reference MoFlow
+   itself (23.40 vs 20.93) — and it is consistent with the
    registered **"diffusion = Molek's FCD lever"** decision (GenMol as the study reference).
-3. Molek is an honest, compute-efficient MoFlow-class baseline (29M params, single free T4) that
-   reproduces the reference flow family; it is mid-pack on FCD where diffusion is SOTA.
+3. Molek is an honest, compute-efficient MoFlow-class baseline (29M params, single free T4). Whether it
+   reproduces the reference is open: FCD 23.40 vs published 20.93, raw validity 0% vs published 63.11%. It is
+   mid-pack on FCD where diffusion is SOTA.
 
 ## CDGS — deferred (honest, not a silent failure)
 CDGS was attempted with its frozen author GDrive checkpoint (run-only). Four py3.13/modern-stack

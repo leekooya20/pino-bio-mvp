@@ -15,7 +15,7 @@ temperature 0.85 · **Seed:** 20261023 · All numbers measured (G7).
 | Abs. uniqueness | 99.94% (sd 0.02) | 0.00% | — |
 
 Per-experiment valid counts (of 10,000): 9996, 9998, 9994, 9990, 9995.
-Uncorrected 0% = MoFlow-by-design (raw decode needs valency correction).
+Uncorrected 0%: MoFlow does rely on valency correction, but published MoFlow validity without correction on ZINC250k is **63.11%** (GDSS, Jo et al. 2022, Table 2), so a 0% raw result is not explained by the architecture alone. Likely cause: the evaluation environment (stricter modern-RDKit sanitization, see `docs/results/molek-30m-D3.md`); it may also be the replica. **Under investigation.**
 
 ## 2. Distributional metrics (30k generations vs ZINC250k test)
 
@@ -28,17 +28,24 @@ Uncorrected 0% = MoFlow-by-design (raw decode needs valency correction).
 
 ## 3. ZINC250k leaderboard context (published baselines)
 
-| Model | Validity(%)↑ | FCD↓ | Family |
+Validity here is **without correction** for every row, so the column is like-for-like.
+
+| Model | Validity w/o correction (%)↑ | FCD↓ | Family |
 |---|---|---|---|
-| GraphAF | 68.47 | 16.02 | autoregressive flow |
+| GraphAF+FC | 68.47 | 16.02 | autoregressive flow |
 | GDSS | 97.01 | **14.66** | diffusion (best FCD) |
 | GraphArm | 88.23 | 16.26 | autoregressive diffusion |
-| **MoFlow (ref)** | ~100 (corr.) | 20.93 | normalizing flow |
-| **Molek-30M (ours)** | **99.95** (corr.) | 23.40 | normalizing flow (replica) |
+| **MoFlow (ref)** | 63.11 | 20.93 | normalizing flow |
+| **Molek-30M (ours)** | **0.00** (our eval, under investigation) | 23.40 | normalizing flow (replica) |
 | DiGress | 91.02 | 23.06 | discrete diffusion |
 
-**Reading:** Molek matches MoFlow (validity + FCD within scale-down). MoFlow-family is
-mid-pack on FCD; diffusion leads. FCD frontier = architecture lever, not a Molek tune.
+GraphAF+FC, GDSS and MoFlow rows: GDSS (Jo et al. 2022) Table 2. GraphArm and DiGress rows: as previously listed,
+not re-checked in this edit. Molek's corrected validity (99.95%) is not comparable to this column.
+
+**Reading:** on FCD, Molek (23.40) is ~12% higher, i.e. worse, than the reference MoFlow (20.93; lower is better).
+That is inside the pre-declared ≤1.5× tolerance (H2, ratio 1.12), but it is not a match. On validity without
+correction, Molek's 0% is far below MoFlow's published 63.11% (unexplained, under investigation). MoFlow-family is
+mid-pack on FCD; diffusion leads.
 
 ## 4. Reproduce
 ```bash
@@ -56,5 +63,8 @@ Pins: `moflow@3611c6372602`, `moses@dd7ed6ab38e2`. Kaggle kernels: `moflow30m-zi
 (train), `molek-eval-r1` (D3), `molek-moses-r1` (FCD).
 
 ## 5. Verdict
-Faithful MoFlow replica at 30M — matches reference on validity/novelty/uniqueness **and**
-FCD. Honest baseline; **not** distributional SOTA. Agri-conditioning + wet-lab = future.
+MoFlow-class replica at 30M. It matches the reference on **corrected** validity/novelty/uniqueness (metrics
+that saturate near 100% for this task, so they separate models poorly). FCD is within the pre-declared ≤1.5×
+tolerance but ~12% worse than the reference (23.40 vs 20.93). Raw validity is 0% vs the reference's published
+63.11%, unexplained. Faithfulness to the reference is therefore **not yet established**. Honest baseline;
+**not** distributional SOTA. Agri-conditioning + wet-lab = future.

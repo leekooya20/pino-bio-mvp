@@ -1,5 +1,14 @@
 # Molek-30M — D3 eval result (first measured numbers)
 
+> **Correction (2026-10-24, docs review):** this record says raw validity 0% is "MoFlow-by-design" and that
+> "the reference itself always reports corrected numbers". Both are contradicted by published data: MoFlow's
+> validity without correction on ZINC250k is **63.11%** (GDSS, Jo et al. 2022, Table 2). The 0% is therefore
+> unexplained and under investigation (likely the stricter modern-RDKit evaluation path described below).
+> Also, high corrected novelty/uniqueness does not by itself prove the model learned the distribution: valency
+> correction applied to poor decodes can still yield novel, unique molecules. FCD (23.40 vs 20.93) is the
+> distribution-level evidence. The original text below is kept as recorded.
+
+
 **Date:** 2026-10-24 · **Checkpoint:** epoch 197/200 (run started 2026-10-23 12:14)
 **sha256:** `7f8374df3cb86e31182d4a42ff1bfd2d97df7edd5b788c9cd1090e6dbf722228`
 **Protocol:** 10,000 samples × 5 experiments, temperature 0.85 (reference README protocol)
