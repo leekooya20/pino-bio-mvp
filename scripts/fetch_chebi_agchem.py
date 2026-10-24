@@ -20,6 +20,7 @@ on compute (CHEBI_OBO / CHEBI_SDF env or argv) — the license gate still runs f
 """
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import os
@@ -120,15 +121,52 @@ def agrochemical_molecules(terms: dict[str, dict], role_ids: set[str]) -> list[s
 
 
 # --- SMILES from SDF (structures) ---
-def parse_sdf_smiles(sdf_text: str) -> dict[str, str]:
-    """Map ChEBI id -> SMILES from a ChEBI SDF export (reads the SMILES property)."""
+def _smiles_from_block(block: str) -> str | None:
+    """Fallback: a `> <SMILES>` property tag, if a given SDF export happens to carry one."""
+    smi = re.search(r">\s*<SMILES>\s*\n(.+)", block)
+    return smi.group(1).strip() if smi else None
+
+
+def parse_sdf_smiles(sdf_path: Path) -> dict[str, str]:
+    """Map ChEBI id -> SMILES from a ChEBI SDF export.
+
+    ChEBI's SDF (verified live 2026-10-24, chebi_lite_3_stars.sdf.gz) carries only the
+    molblock + `<ChEBI ID>` tags — NO `<SMILES>` property (G14: the old property-read
+    returned zero and silently produced empty pairs). We derive SMILES from the molblock
+    with RDKit (ForwardSDMolSupplier; reads .gz directly), keeping a property-tag fallback
+    for exports that do include one. Mod C-CHEBI-1.
+    """
     out: dict[str, str] = {}
-    for block in sdf_text.split("$$$$"):
-        cid = re.search(r"(CHEBI:\d+)", block)
-        smi = re.search(r">\s*<SMILES>\s*\n(.+)", block)
-        if cid and smi:
-            out[cid.group(1)] = smi.group(1).strip()
-    return out
+    opener = gzip.open if sdf_path.suffix == ".gz" else open
+    try:
+        from rdkit import Chem, RDLogger
+        from rdkit.Chem import ForwardSDMolSupplier
+        RDLogger.DisableLog("rdApp.*")  # skip-and-count; unparseable mols are never fabricated
+        with opener(sdf_path, "rb") as fh:
+            sup = ForwardSDMolSupplier(fh, sanitize=True)
+            for mol in sup:
+                if mol is None:
+                    continue
+                cid = mol.GetProp("ChEBI ID") if mol.HasProp("ChEBI ID") else None
+                if not cid:
+                    continue
+                try:
+                    smi = Chem.MolToSmiles(mol)
+                except Exception:  # noqa: BLE001 — skip unparseable, never fabricate
+                    smi = None
+                if smi:
+                    out[cid] = smi
+        return out
+    except ImportError:
+        # No RDKit: fall back to the property-tag path (works only if the export has one).
+        with opener(sdf_path, "rt", encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for block in text.split("$$$$"):
+            cid = re.search(r"(CHEBI:\d+)", block)
+            smi = _smiles_from_block(block)
+            if cid and smi:
+                out[cid.group(1)] = smi
+        return out
 
 
 def descriptors(smiles: str) -> dict | None:
@@ -170,14 +208,15 @@ def main() -> int:
     if not obo.exists() or not sdf.exists():
         print("Attach ChEBI OBO + SDF (CHEBI_OBO / CHEBI_SDF). License gate already passed.\n"
               "  OBO: ftp.ebi.ac.uk/pub/databases/chebi/ontology/chebi.obo\n"
-              "  SDF: ftp.ebi.ac.uk/pub/databases/chebi/SDF/ChEBI_complete.sdf.gz",
+              "  SDF: ftp.ebi.ac.uk/pub/databases/chebi/SDF/chebi_lite_3_stars.sdf.gz\n"
+              "       (.gz read directly; SMILES derived from molblocks via RDKit, C-CHEBI-1)",
               file=sys.stderr)
         return 3
 
     terms = parse_obo(obo.read_text(encoding="utf-8", errors="replace"))
     roles = role_subtree(terms, AGROCHEMICAL_ROOT)
     mol_ids = agrochemical_molecules(terms, roles)
-    smiles_map = parse_sdf_smiles(sdf.read_text(encoding="utf-8", errors="replace"))
+    smiles_map = parse_sdf_smiles(sdf)
     print(f"ok  roles in agrochemical tree: {len(roles)} · agrochemical molecules: {len(mol_ids)}")
 
     n_pairs = 0
