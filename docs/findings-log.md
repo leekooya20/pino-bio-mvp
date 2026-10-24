@@ -1,4 +1,15 @@
-﻿## F-0030 | 2026-10-24 | Seqgen validate v2 — streaming + G1 gate PASS; BPE OOM fixed
+﻿## F-0031 | 2026-10-24 | Molek WIRED into /v1 + research paper/benchmark/model-card written
+
+- Wired: serving/runtimes/molek_runtime.py loads epoch-197 ckpt (reconstructed params) +
+  pinned generate_mols/check_validity -> real {smiles,qed,logp} for /v1 generate-molecule.
+  G7 honest-error on failure; runs where torch+rdkit+moflow present (GPU host/container).
+  5 serving tests still green (honest-pending locally, no ckpt).
+- Wrote (blueprint format per PinoAI/docs/RESEARCH_PAPER_PLAN + MODEL_CARD_TEMPLATE):
+  docs/papers/molek-30m-paper.md (research question->reproducibility, measured-only),
+  molek-30m-benchmark.md (full tables + ZINC250k leaderboard context), molek-30m-model-card.md.
+- All numbers real (D3 + FCD); honest limitations (mid-pack FCD, raw 0%, no agri/wet-lab,
+  no formal ablations yet). capability-map A1 -> DONE+WIRED+WRITTEN.
+## F-0030 | 2026-10-24 | Seqgen validate v2 — streaming + G1 gate PASS; BPE OOM fixed
 
 - WINS: G1 gate (pinned CC BY 4.0 + source-live HEAD 200) = pass; UR50 streaming early-stop
   WORKS — 300,000 seqs in 28s (train 270k/eval 30k), no 8GB download. Streaming approach proven.
@@ -418,6 +429,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 
