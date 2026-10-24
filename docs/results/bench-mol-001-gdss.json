@@ -1,0 +1,20 @@
+{
+  "benchmark": "BENCH-MOL-001",
+  "model": "gdss",
+  "n_generated_raw": 10000,
+  "n_valid": 10000,
+  "n_unique": 9963,
+  "reference_set": "zinc250k (train=novelty ref, test=FCD/SNN ref) \u2014 same splits as Molek",
+  "scorer": "score_smiles_benchmark.py (identical for every model; G7 no metric drift)",
+  "metrics": {
+    "validity": 100.0,
+    "uniqueness": 99.63,
+    "novelty": 99.99,
+    "FCD/Test": 15.7418,
+    "IntDiv": 0.902,
+    "IntDiv2": 0.8929,
+    "SNN/Test": 0.2504
+  },
+  "note": "GDSS (Jo et al. 2022) frozen author zinc250k ckpt, run-only (G1); generated via its own code, scored by our shared harness.",
+  "generated_at": "2026-10-24T10:54:49+0000"
+}
