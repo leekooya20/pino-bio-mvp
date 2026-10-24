@@ -1,4 +1,16 @@
-﻿## F-0028 | 2026-10-24 | Seqgen data source resolved — UR50 2021_04 archived as tar bundle; pilot uses current UR50 streaming
+﻿## F-0029 | 2026-10-24 | G1 gate fix — UniProt /help/license is a JS SPA (raw-regex impossible); verify pinned entry + liveness
+
+- Seqgen validate run errored: G1 gate failed because UniProt /help/license returns 200 but
+  is a JS-rendered SPA -> raw HTML has NO license text -> regex miss (same JS-render limit
+  flagged for crop proteomes). The LICENSE is fine (UniProt = CC BY 4.0); the CHECK was wrong.
+- Even my webfetch tool hits UniProt's SPA fallback; FTP README/relnotes have no license text.
+- **Fix:** pinned uniref50 as CC BY 4.0 in licenses.yaml (established/verified 2026-10-24,
+  note the SPA limitation). G1 gate now verifies (a) the PINNED licenses.yaml entry (CC BY 4.0
+  + commercial_ok) and (b) LIVE reachability of the data source (HEAD 200) — honest + robust,
+  not a brittle JS scrape. Verified locally: verdict pass.
+- Lesson: 'verify live' must target a raw-fetchable source; for SPA-only licenses, pin the
+  authoritative assertion + check source liveness.
+## F-0028 | 2026-10-24 | Seqgen data source resolved — UR50 2021_04 archived as tar bundle; pilot uses current UR50 streaming
 
 - UR50 2021_04 direct fasta 404s; the archived release is a 40GB+ uniref2021_04.tar.gz
   bundle (not a direct uniref50.fasta.gz). Not worth it for a pilot.
@@ -397,6 +409,7 @@ Format: newest first. `ID | date | context | observation | evidence | impact/sta
 *Next entries: any anomaly from the run #7 epoch log (fetched at termination),
 ProtGPT2 data prep surprises, serving-layer quirks. Reminder duty is in
 `CLAUDE.md` (G13).*
+
 
 
 

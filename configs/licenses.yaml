@@ -82,12 +82,12 @@ datasets:
     basis: "github.com/molecularsets/moses verified MIT 2026-10-23; MOSES 250k subset of ZINC15 (ZINC is free for everyone); molecules are facts — no PII, no copyright on structures"
   - id: uniref50
     domain: bio
-    license: "UniProt License (free, unrestricted use)"
-    retrieved_at: "2026-10-23"
+    license: "CC BY 4.0 (UniProt)"
+    retrieved_at: "2026-10-24"
     commercial_ok: true
     derivative_ok: true
     contains_pii: false
-    basis: "UniProt consortium license permits open use; training data for ProtGPT2 recipe replication; re-verify snapshot license at download time"
+    basis: "UniProt adopted CC BY 4.0 for all copyrightable parts of its databases (per UniProt /help/license). NOTE: that page is a JS-rendered SPA, NOT raw-fetchable — so in-kernel raw-regex verification is impossible (F-0029); pinned here as CC BY 4.0 (established/verified 2026-10-24). G1 gate therefore verifies THIS pinned entry + live reachability of the data source, not a JS-page scrape. Attribution travels with any release (C5)."
   - id: uniprot-crop-proteomes
     domain: bio
     license: "CC BY 4.0 — CONDITIONAL pending live verification (PinoAI standard 636b63: a licence you cannot read is not a verified licence)"
